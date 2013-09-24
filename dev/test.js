@@ -57,7 +57,7 @@ test("Check research available to conduct", function() {
 	equal(gameState.getAvailableResearchProjects()[2], 8008, "third project is night bombing");
 });
 
-test("Check complex game state formation", function() {
+test("Check complex game state formation research available", function() {
 
 	// build the research inventory
 	var researchInventory = new Array();
@@ -78,6 +78,40 @@ test("Check complex game state formation", function() {
 	equal(gameState.getAvailableResearchProjects()[2], 8009, "modern rocketry is third project");
 	equal(gameState.getAvailableResearchProjects()[3], 8004, "phantom factory is forth");
 	equal(gameState.getAvailableResearchProjects()[4], 8006, "stratofortress plant is fifth");
+});
+
+
+test("Check complex game state formation units available to build", function() {
+
+	// build the research inventory
+	var researchInventory = new Array();
+	researchInventory.push(new Inventory(0));
+	researchInventory.push(new Inventory(8001));
+	researchInventory.push(new Inventory(8002));
+	researchInventory.push(new Inventory(8008));
+	researchInventory.push(new Inventory(8005));
+	researchInventory.push(new Inventory(8003));
+	researchInventory.push(new Inventory(8004));
+	researchInventory.push(new Inventory(8006));
+
+	// configure the game
+	var gameConfiguration = new SkyFlyerGameConfig(0, 0, 0, 0, buildTutorialGameUnitInventory(), buildTutorialResearchTree(), null, researchInventory);
+	var gameState = new SkyFlyerGameState(gameConfiguration);
+
+	// check game state
+	equal(gameState.getAvailableBuildUnits().length, 4, "still four units available");
+	equal(gameState.getAvailableBuildUnits()[0], 4001, "rocket still available");
+	equal(gameState.getAvailableBuildUnits()[1], 3002, "flagon now available");
+	equal(gameState.getAvailableBuildUnits()[2], 1002, "phantom now available");
+	equal(gameState.getAvailableBuildUnits()[3], 2002, "stratofortress now available");
+
+
+
+	for(var i = 0; i < gameState.getAvailableBuildUnits().length; i++) {
+		console.log(gameState.getAvailableBuildUnits()[i]);
+	}
+
+	ok(1);
 });
 
 

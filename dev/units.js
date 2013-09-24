@@ -113,6 +113,21 @@ function SkyFlyerGameState(gameConfig) {
 
 				var thisResearchInventoryItem = gameResearchInventory.getResearchByID(researchInventory[index].getIDNumber());
 				addResearchInventoryItemUnitsToUnitsAvailableToBuildList();
+				removeObsoleteUnitsFromAvailableUnitsList();
+
+				/**
+				 * Clean up the units available to build list knowing only one item of a sequence XXX1, XXX2, XXX3 is allowed at once
+				 */
+				function removeObsoleteUnitsFromAvailableUnitsList() {
+					for(var i = 0; i < unitsAvailableToBuild.length; i++) {
+						for(var j = 0; j < unitsAvailableToBuild.length; j++) {
+							if(i !== j && (unitsAvailableToBuild[i]-1 === unitsAvailableToBuild[j])) {
+								unitsAvailableToBuild.splice(j, 1);
+								i--;
+							}
+						}
+					}
+				}
 				
 				/** 
 				 * Add each of the units to the unitsAvailableToBuild list for this research item
@@ -192,8 +207,11 @@ function SkyFlyerGameState(gameConfig) {
 				 * Add each of the units to the researchAvailable list for this research item
 				 */
 				function addResearchInventoryItemUnitsToUnitsAvailableToBuildList() {
-					for(researchUnlockIndex = 0; researchUnlockIndex < thisResearchInventoryItem.unlockResearch.length; researchUnlockIndex++) {
-						if(!isItemIDAlreadyInUnitsAvailableList(thisResearchInventoryItem.unlockResearch[researchUnlockIndex])) {
+					if(thisResearchInventoryItem.unlockResearch === null) {
+						thisResearchInventoryItem.unlockResearch = new Array();
+					}
+					for(var researchUnlockIndex = 0; researchUnlockIndex < thisResearchInventoryItem.unlockResearch.length; researchUnlockIndex++) {
+						if(thisResearchInventoryItem.unlockResearch !== null && !isItemIDAlreadyInUnitsAvailableList(thisResearchInventoryItem.unlockResearch[researchUnlockIndex])) {
 							researchAvailable.push(thisResearchInventoryItem.unlockResearch[researchUnlockIndex]);
 						}
 					}
