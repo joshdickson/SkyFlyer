@@ -57,6 +57,29 @@ test("Check research available to conduct", function() {
 	equal(gameState.getAvailableResearchProjects()[2], 8008, "third project is night bombing");
 });
 
+test("Check complex game state formation", function() {
+
+	// build the research inventory
+	var researchInventory = new Array();
+	researchInventory.push(new Inventory(0));
+	researchInventory.push(new Inventory(8001));
+	researchInventory.push(new Inventory(8002));
+	researchInventory.push(new Inventory(8008));
+	researchInventory.push(new Inventory(8005));
+
+	// configure the game
+	var gameConfiguration = new SkyFlyerGameConfig(0, 0, 0, 0, buildTutorialGameUnitInventory(), buildTutorialResearchTree(), null, researchInventory);
+	var gameState = new SkyFlyerGameState(gameConfiguration);
+
+	// check game state
+	equal(gameState.getAvailableResearchProjects().length, 5, "five projects now available");
+	equal(gameState.getAvailableResearchProjects()[0], 8003, "flagon factory is first project");
+	equal(gameState.getAvailableResearchProjects()[1], 8007, "air superiority second project");
+	equal(gameState.getAvailableResearchProjects()[2], 8009, "modern rocketry is third project");
+	equal(gameState.getAvailableResearchProjects()[3], 8004, "phantom factory is forth");
+	equal(gameState.getAvailableResearchProjects()[4], 8006, "stratofortress plant is fifth");
+});
+
 
 
 // tutorial initiation...
@@ -88,7 +111,7 @@ function buildTutorialGameUnitInventory() {
 function buildTutorialResearchTree() {
 	var researchInventory = new Array();
 	researchInventory.push(new SkyFlyerResearch(0, "startup", "", 0, [8001, 8002, 8008], [1001, 2001, 3001, 4001]));
-	researchInventory.push(new SkyFlyerResearch(8001, "Jet Engines", "Jt", 16, [8003], null));
+	researchInventory.push(new SkyFlyerResearch(8001, "Jet Engines", "Jt", 16, [8003, 8005], null));
 	researchInventory.push(new SkyFlyerResearch(8002, "Dogfighting", "Dg", 16, [8007], null));
 	researchInventory.push(new SkyFlyerResearch(8003, "Flagon Factory",	"Fl", 16, null, [3002]));
 	researchInventory.push(new SkyFlyerResearch(8004, "Phantom Factory", "Ph", 16, null, [1002]));

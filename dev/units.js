@@ -4,7 +4,8 @@
 /**
  * The game configuration that is used as a parameter object to seed a SkyFlyerGameState
  */
-function SkyFlyerGameConfig(turnNumber, playerCash, playerPoints, opponentStrength, gameUnitInventory, gameResearchInventory, unitInventory, researchInventory) {
+function SkyFlyerGameConfig(turnNumber, playerCash, playerPoints, opponentStrength, gameUnitInventory, 
+	gameResearchInventory, unitInventory, researchInventory) {
 	this.turnNumber 			= turnNumber;
 	this.playerCash 			= playerCash;
 	this.playerPoints 			= playerPoints;
@@ -20,41 +21,34 @@ function SkyFlyerGameConfig(turnNumber, playerCash, playerPoints, opponentStreng
  * currently being played. With a game state, a new game can be instantiated and returned
  * to the exact state as another game (For instance, if the player quits the app, the
  * game state can be saved to later recreate the game exactly as it was).
- *		turn 					the current turn number of a game
- *		playerCash				how much cash the player has
- *		playerPoints			how many points the player has
- *		opponentStrength		the opponent's strength
- *		gameUnitInventory 		SkyFlyerGamePieceInventory (list of all game pieces)
- *		gameResearchInventory	SkyFlyerResearchInventory (list of all research projects)
- *		unitInventory 			Inventory array for all units owned by the player
- *		researchInventory 		sequential Inventory array for all research done for the game
+ *		gameConfig the SkyflyerGameConfig used to start the game
  */
 function SkyFlyerGameState(gameConfig) {
 	
 	/**
 	 * Local scope
 	 */
-	var turn 					= gameConfig.turnNumber;
-	var playerCash 				= gameConfig.playerCash;
-	var playerPoints		 	= gameConfig.playerPoints;
-	var opponentStrength 		= gameConfig.opponentStrength;
-	var gameUnitInventory 		= new SkyFlyerGamePieceInventory(gameConfig.gameUnitInventory);
-	var gameResearchInventory 	= new SkyFlyerResearchInventory(gameConfig.gameResearchInventory);
-	var unitInventory 			= gameConfig.unitInventory;
-	var researchInventory 		= gameConfig.researchInventory;
-	var unitsAvailableToBuild 	= getUnitsAvailableToBuild();
-	var researchAvailableToDo	= getResearchAvailableToConduct();
+	var turn 							= gameConfig.turnNumber;
+	var playerCash 						= gameConfig.playerCash;
+	var playerPoints		 			= gameConfig.playerPoints;
+	var opponentStrength 				= gameConfig.opponentStrength;
+	var gameUnitInventory 				= new SkyFlyerGamePieceInventory(gameConfig.gameUnitInventory);
+	var gameResearchInventory 			= new SkyFlyerResearchInventory(gameConfig.gameResearchInventory);
+	var unitInventory 					= gameConfig.unitInventory;
+	var researchInventory 				= gameConfig.researchInventory;
+	var unitsAvailableToBuild 			= getUnitsAvailableToBuild();
+	var researchAvailableToDo			= getResearchAvailableToConduct();
 
 	/**
 	 * Global scope
 	 */
-	this.turn 					= getTurn;
-	this.cash 					= getPlayerCash;
-	this.points 				= getPoints;
-	this.opponentStrength 		= getOpponentStrength;
-	this.unitInventory 			= getUnitInventory;
-	this.getAvailableBuildUnits	= getAvailableBuildUnits;
-	this.getAvailableResearchProjects = getAvailableResearchProjects;
+	this.turn 							= getTurn;
+	this.cash 							= getPlayerCash;
+	this.points 						= getPoints;
+	this.opponentStrength 				= getOpponentStrength;
+	this.unitInventory 					= getUnitInventory;
+	this.getAvailableBuildUnits			= getAvailableBuildUnits;
+	this.getAvailableResearchProjects 	= getAvailableResearchProjects;
 
 	/**
 	 * Get the list of units available to build as a list of ID numbers
@@ -124,7 +118,7 @@ function SkyFlyerGameState(gameConfig) {
 				 * Add each of the units to the unitsAvailableToBuild list for this research item
 				 */
 				function addResearchInventoryItemUnitsToUnitsAvailableToBuildList() {
-					for(unitUnlockIndex = 0; unitUnlockIndex < thisResearchInventoryItem.unlockUnit.length; unitUnlockIndex++) {
+					for(unitUnlockIndex = 0; thisResearchInventoryItem.unlockUnit !== null && unitUnlockIndex < thisResearchInventoryItem.unlockUnit.length; unitUnlockIndex++) {
 						if(!isItemIDAlreadyInUnitsAvailableList(thisResearchInventoryItem.unlockUnit[unitUnlockIndex])) {
 							unitsAvailableToBuild.push(thisResearchInventoryItem.unlockUnit[unitUnlockIndex]);
 						}
@@ -162,7 +156,6 @@ function SkyFlyerGameState(gameConfig) {
 		};
 	};
 
-//////////////////////////////////////
 	/**
 	 * Build the list of units that can be built from the research projects completed
 	 */
@@ -176,9 +169,24 @@ function SkyFlyerGameState(gameConfig) {
 		 */
 		function addResearchToAvailableResearchBuildList() {
 			for(var index = 0; researchInventory != null && index < researchInventory.length; index++) {
-
 				var thisResearchInventoryItem = gameResearchInventory.getResearchByID(researchInventory[index].getIDNumber());
 				addResearchInventoryItemUnitsToUnitsAvailableToBuildList();
+				removeThisResearchItemIfMultipleNotAllowed();
+
+				/**
+				 * If multiples of this research item are not allowed to be constructed, remove the
+				 * item from the list of available research projects...
+				 */
+				function removeThisResearchItemIfMultipleNotAllowed() {
+					if(!thisResearchInventoryItem.isMultipleAllowed) {
+						for(var researchIndex = 0; researchIndex < researchAvailable.length; researchIndex++) {
+							if(researchAvailable[researchIndex] == researchInventory[index].getIDNumber()) {
+								researchAvailable.splice(researchIndex, 1);
+								researchIndex--;
+							}
+						}
+					}
+				}
 				
 				/** 
 				 * Add each of the units to the researchAvailable list for this research item
@@ -216,9 +224,16 @@ function SkyFlyerGameState(gameConfig) {
  * An inventory building block that maps an idNumber, for a unit or research, and a counter
  */
 function Inventory(idNumber, count) {
+
 	var idNumber 	= idNumber;
-	var count 		= count;
-	
+	var countLocal;
+
+	if(count === undefined) {
+		countLocal = 1;
+	} else {
+		countLocal 	= count;
+	}
+
 	this.getIDNumber = getIDNumber;
 	this.getCount = getCount;
 
@@ -233,7 +248,7 @@ function Inventory(idNumber, count) {
 	 * Get this inventory item's inventory count
 	 */
 	function getCount() {
-		return count;
+		return countLocal;
 	}
 }
 
@@ -269,12 +284,21 @@ function SkyFlyerResearchInventory(researchProjects) {
  *		canBeMultiple	Whether or not multiples of this research is possible
  */
 function SkyFlyerResearch(idNumber, researchName, shortName, productionCost, unlockResearch, unlockUnit, canBeMultiple) {
-	this.idNumber 		= idNumber;
-	this.researchName 	= researchName;
-	this.shortName 		= shortName;
-	this.productionCost = productionCost;
-	this.unlockResearch = unlockResearch;
-	this.unlockUnit 	= unlockUnit;
+	var multipleAllowed;
+	if(canBeMultiple === undefined) {
+		multipleAllowed = false;
+	} else {
+		multipleAllowed = canBeMultiple;
+	}
+
+	this.idNumber 			= idNumber;
+	this.researchName 		= researchName;
+	this.shortName 			= shortName;
+	this.productionCost 	= productionCost;
+	this.unlockResearch 	= unlockResearch;
+	this.unlockUnit 		= unlockUnit;
+	this.isMultipleAllowed 	= multipleAllowed;
+
 };
 
 /**
