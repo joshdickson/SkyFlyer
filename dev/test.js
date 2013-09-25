@@ -5,10 +5,10 @@ test("Constants initialize (turn, cash, points, opp str)", function() {
 	var gameConfiguration = new SkyFlyerGameConfig(5, 400, 800, 85, null,  buildTutorialResearchTree(), null, null);
 	var gameState = new SkyFlyerGameState(gameConfiguration);
 	ok(gameState);
-	equal(gameState.turn(), 5, "turn is 4");
-	equal(gameState.cash(), 400, "cash is 400");
-	equal(gameState.points(), 800, "points are 800");
-	equal(gameState.opponentStrength(), 85, "opp strength is 85");
+	equal(gameState.getTurn(), 5, "turn is 5");
+	equal(gameState.getPlayerCash(), 400, "cash is 400");
+	equal(gameState.getPoints(), 800, "points are 800");
+	equal(gameState.getOpponentStrength(), 85, "opp strength is 85");
 });
 
 test("Unit inventory initializes", function() {
@@ -22,16 +22,26 @@ test("Unit inventory initializes", function() {
 	var gameState = new SkyFlyerGameState(gameConfiguration);
 
 	// check the player's units
-	ok(gameState.unitInventory());
-	equal(gameState.unitInventory().length, 4, "four inventory items");
-	equal(gameState.unitInventory()[0].getIDNumber(), 1001, "first inventory item id matches");
-	equal(gameState.unitInventory()[0].getCount(), 10, "first inventory item count matches");
-	equal(gameState.unitInventory()[1].getIDNumber(), 2001, "second inventory item id matches");
-	equal(gameState.unitInventory()[1].getCount(), 6, "second inventory item count matches");
-	equal(gameState.unitInventory()[2].getIDNumber(), 3001, "third inventory item id matches");
-	equal(gameState.unitInventory()[2].getCount(), 2, "third inventory item count matches");
-	equal(gameState.unitInventory()[3].getIDNumber(), 4001, "fourth inventory item id matches");
-	equal(gameState.unitInventory()[3].getCount(), 0, "fourth inventory item count matches");
+	ok(gameState.getUnitInventory());
+	equal(gameState.getUnitInventory().length, 4, "four inventory items");
+	equal(gameState.getUnitInventory()[0].getIDNumber(), 1001, "first inventory item id matches");
+	equal(gameState.getUnitInventory()[0].getCount(), 10, "first inventory item count matches");
+	equal(gameState.getUnitInventory()[1].getIDNumber(), 2001, "second inventory item id matches");
+	equal(gameState.getUnitInventory()[1].getCount(), 6, "second inventory item count matches");
+	equal(gameState.getUnitInventory()[2].getIDNumber(), 3001, "third inventory item id matches");
+	equal(gameState.getUnitInventory()[2].getCount(), 2, "third inventory item count matches");
+	equal(gameState.getUnitInventory()[3].getIDNumber(), 4001, "fourth inventory item id matches");
+	equal(gameState.getUnitInventory()[3].getCount(), 0, "fourth inventory item count matches");
+});
+
+test("Check research project queue", function()  {
+
+	var gameConfiguration = new SkyFlyerGameConfig(0,0, 0, 0, buildTutorialGameUnitInventory(), 
+		buildTutorialResearchTree(), null, null, new BuildQueueItem(8001, 5));
+	var gameState =  new SkyFlyerGameState(gameConfiguration);
+
+	equal(gameState.getBuildQueueItem().getIDNumber(), 8001, "working on 8001");
+	equal(gameState.getBuildQueueItem().getTurnsToComplete(), 5, "5 turns to complete");
 });
 
 test("Check units available to build", function() {
@@ -105,14 +115,156 @@ test("Check complex game state formation units available to build", function() {
 	equal(gameState.getAvailableBuildUnits()[2], 1002, "phantom now available");
 	equal(gameState.getAvailableBuildUnits()[3], 2002, "stratofortress now available");
 
-
-
-	for(var i = 0; i < gameState.getAvailableBuildUnits().length; i++) {
-		console.log(gameState.getAvailableBuildUnits()[i]);
-	}
-
-	ok(1);
 });
+
+module("Functions");
+
+test("Test LinearProduction production", function() {
+
+	var lp = new LinearProduction(1, 1);
+
+	ok(lp);
+	equal(lp.buildProduction(0), 1, "1 on first turn");
+	equal(lp.buildProduction(1), 2, "2 on second turn");
+	equal(lp.buildProduction(5), 6, "6 on sixth turn");
+
+});
+
+test("Test LinearProduction in ProductionWrapper", function() {
+
+	var pw = new ProductionWrapper(new LinearProduction(2, 4));
+	ok(pw);
+	equal(pw.buildProduction(0), 4, "2 * 0 + 4");
+	equal(pw.buildProduction(1), 6, "2 * 1 + 4");
+	equal(pw.buildProduction(5), 14, "2 * 5 + 4");
+
+	// now modify the production wrapper
+	pw.addToBonus(10);
+	equal(pw.buildProduction(0), 14, "2 * 0 + 4 + 10");
+	equal(pw.buildProduction(1), 16, "2 * 1 + 4 + 10");
+	equal(pw.buildProduction(5), 24, "2 * 5 + 4 + 10");
+
+	// now modify the multiplication wrapper
+	pw.addToMultiplier(0.5);
+	equal(pw.buildProduction(0), 16, "4(1.5) + 10");
+	equal(pw.buildProduction(1), 19, "6(1.5) + 10");
+	equal(pw.buildProduction(5), 31, "14(1.5) + 10");
+
+	// add again to the multiplier
+	pw.addToMultiplier(0.5);
+	equal(pw.buildProduction(0), 18, "4(2) + 10");
+	equal(pw.buildProduction(1), 22, "6(2) + 10");
+	equal(pw.buildProduction(5), 38, "14(2) + 10");
+
+});
+
+test("Test SkyFlyerFunctions as wrapper", function() {
+
+	var gameFunctions = new SkyFlyerFunctions(new ProductionWrapper(new LinearProduction(2, 4)), 
+		new ProductionWrapper(new LinearProduction(4, 2)));
+
+	// getting the player production should match above
+	equal(gameFunctions.getPlayerProduction(0), 4, "2 * 0 + 4");
+	equal(gameFunctions.getPlayerProduction(1), 6, "2 * 1 + 4");
+	equal(gameFunctions.getPlayerProduction(5), 14, "2 * 5 + 4");
+
+});
+
+test("Test SkyFlyerFunctions in game", function() {
+
+	// build game functions
+	var gameFunctions = new SkyFlyerFunctions(new ProductionWrapper(new LinearProduction(2, 4)), 
+		new ProductionWrapper(new LinearProduction(4, 2)));
+
+	// build simple game with modification
+	var gameConfiguration = new SkyFlyerGameConfig(5, 400, 800, 85, buildTutorialGameUnitInventory(), 
+		buildTutorialResearchTree(), null, null, null);
+	var gameState = new SkyFlyerGameState(gameConfiguration, gameFunctions);
+
+	// get the game functions
+	var returnedFunctions = gameState.getProductionFunctions();
+	ok(returnedFunctions);
+
+	// test with same vals as above
+	equal(returnedFunctions.getPlayerProduction(0), 4, "2 * 0 + 4");
+	equal(returnedFunctions.getPlayerProduction(1), 6, "2 * 1 + 4");
+	equal(returnedFunctions.getPlayerProduction(5), 14, "2 * 5 + 4");
+
+
+});
+
+
+// module("Purchasing Units");
+
+// test("Check buy single unit", function() {
+
+// 	var gameState = buildSimpleGame();
+
+// 	equal(gameState.unitInventory()[0].getIDNumber(), 1001);
+// 	equal(gameState.unitInventory()[0].getCount(), 2);
+// 	equal(gameState.unitInventory()[1].getIDNumber(), 2001);
+// 	equal(gameState.unitInventory()[1].getCount(), 0);
+// 	equal(gameState.unitInventory()[2].getIDNumber(), 3001);
+// 	equal(gameState.unitInventory()[2].getCount(), 10);
+// 	equal(gameState.unitInventory()[3].getIDNumber(), 4001);
+// 	equal(gameState.unitInventory()[3].getCount(), 5);
+
+// 	// now, we make a purchase by handing the ID number of the unit to buy...
+
+	
+
+
+// });
+
+
+
+
+function buildSimpleGame() {
+
+	// turn 		4
+	// cash 		400
+	// points		800
+	// opp str 		85
+
+	// we must seed the units that the user starts with...
+	var userUnits = new Array();
+	userUnits.push(new Inventory(1001, 2));
+	userUnits.push(new Inventory(2001, 0));
+	userUnits.push(new Inventory(3001, 10));
+	userUnits.push(new Inventory(4001, 5));
+
+	// configure the game
+	var gameConfiguration = new SkyFlyerGameConfig(5, 400, 800, 85, buildTutorialGameUnitInventory(), 
+		buildTutorialResearchTree(), userUnits, null, null);
+	return new SkyFlyerGameState(gameConfiguration);
+
+}
+
+
+
+function buildComplexGame() {
+
+	// turn 		4
+	// cash 		400
+	// points		800
+	// opp str 		85
+
+	var researchInventory = new Array();
+	researchInventory.push(new Inventory(0));
+	researchInventory.push(new Inventory(8001));
+	researchInventory.push(new Inventory(8002));
+	researchInventory.push(new Inventory(8008));
+	researchInventory.push(new Inventory(8005));
+	researchInventory.push(new Inventory(8003));
+	researchInventory.push(new Inventory(8004));
+	researchInventory.push(new Inventory(8006));
+
+	// configure the game
+	var gameConfiguration = new SkyFlyerGameConfig(5, 400, 800, 85, buildTutorialGameUnitInventory(), 
+		buildTutorialResearchTree(), null, researchInventory);
+	return new SkyFlyerGameState(gameConfiguration);
+
+}
 
 
 

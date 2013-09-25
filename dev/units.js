@@ -1,20 +1,25 @@
 // Units.js
 // Joshua Dickson
 
-/**
- * The game configuration that is used as a parameter object to seed a SkyFlyerGameState
- */
-function SkyFlyerGameConfig(turnNumber, playerCash, playerPoints, opponentStrength, gameUnitInventory, 
-	gameResearchInventory, unitInventory, researchInventory) {
-	this.turnNumber 			= turnNumber;
-	this.playerCash 			= playerCash;
-	this.playerPoints 			= playerPoints;
-	this.opponentStrength 		= opponentStrength;
-	this.gameUnitInventory 		= gameUnitInventory;
-	this.gameResearchInventory 	= gameResearchInventory;
-	this.unitInventory 			= unitInventory;
-	this.researchInventory 		= researchInventory;
-};
+
+// function SkyFlyerGame(gameConfig) {
+
+// 	var gameState = new SkyFlyerGameState(gameConfig);
+
+
+// }
+
+
+
+
+
+
+
+
+
+
+
+
 
 /**
  * The major tracking object that holds all of the information about a game that is
@@ -23,7 +28,7 @@ function SkyFlyerGameConfig(turnNumber, playerCash, playerPoints, opponentStreng
  * game state can be saved to later recreate the game exactly as it was).
  *		gameConfig the SkyflyerGameConfig used to start the game
  */
-function SkyFlyerGameState(gameConfig) {
+function SkyFlyerGameState(gameConfig, productionFunctions) {
 	
 	/**
 	 * Local scope
@@ -38,61 +43,69 @@ function SkyFlyerGameState(gameConfig) {
 	var researchInventory 				= gameConfig.researchInventory;
 	var unitsAvailableToBuild 			= getUnitsAvailableToBuild();
 	var researchAvailableToDo			= getResearchAvailableToConduct();
+	var buildQueueItem					= gameConfig.buildQueueItem;
+	var productionFunctions				= productionFunctions;
 
 	/**
-	 * Global scope
+	 * Get the production functions
 	 */
-	this.turn 							= getTurn;
-	this.cash 							= getPlayerCash;
-	this.points 						= getPoints;
-	this.opponentStrength 				= getOpponentStrength;
-	this.unitInventory 					= getUnitInventory;
-	this.getAvailableBuildUnits			= getAvailableBuildUnits;
-	this.getAvailableResearchProjects 	= getAvailableResearchProjects;
+	 this.getProductionFunctions = function() {
+	 	return productionFunctions;
+	 }
+
+	/**
+	 * Get the research currently being done
+	 */
+	this.getBuildQueueItem = function() {
+		return buildQueueItem;
+	}
 
 	/**
 	 * Get the list of units available to build as a list of ID numbers
 	 */
-	function getAvailableBuildUnits() {
+	this.getAvailableBuildUnits = function() {
 		return unitsAvailableToBuild;
 	}
 
-	function getAvailableResearchProjects() {
+	/**
+	 * Get the list of research available to conduct
+	 */
+	this.getAvailableResearchProjects = function() {
 		return researchAvailableToDo;
 	}
 
 	/**
 	 * Get the inventory of units that this player has
 	 */
-	function getUnitInventory() {
+	this.getUnitInventory = function() {
 		return unitInventory;
 	}
 
 	/**
 	 * Get the current turn of the game
 	 */
-	function getTurn() {
+	this.getTurn = function() {
 		return turn;
 	};
 
 	/**
 	 * Get the player's cash
 	 */
-	function getPlayerCash() {
+	this.getPlayerCash = function() {
 		return playerCash;
 	};
 
 	/**
 	 * Get the player's points
 	 */
-	function getPoints() {
+	this.getPoints = function() {
 		return playerPoints;
 	};
 
 	/**
 	 * Get the opponent's strength
 	 */
-	function getOpponentStrength() {
+	this.getOpponentStrength = function() {
 		return opponentStrength;
 	};
 
@@ -114,6 +127,7 @@ function SkyFlyerGameState(gameConfig) {
 				var thisResearchInventoryItem = gameResearchInventory.getResearchByID(researchInventory[index].getIDNumber());
 				addResearchInventoryItemUnitsToUnitsAvailableToBuildList();
 				removeObsoleteUnitsFromAvailableUnitsList();
+
 
 				/**
 				 * Clean up the units available to build list knowing only one item of a sequence XXX1, XXX2, XXX3 is allowed at once
@@ -148,7 +162,6 @@ function SkyFlyerGameState(gameConfig) {
 				function isItemIDAlreadyInUnitsAvailableList(id) {
 					for(var unitsIndex = 0; unitsIndex < unitsAvailableToBuild.length; unitsIndex++) {
 						if(unitsAvailableToBuild[unitsIndex] == id) {
-							console.log("Returning true...");
 							return true;
 						}
 					}
@@ -236,8 +249,6 @@ function SkyFlyerGameState(gameConfig) {
 	}
 };
 
-
-
 /**
  * An inventory building block that maps an idNumber, for a unit or research, and a counter
  */
@@ -267,6 +278,39 @@ function Inventory(idNumber, count) {
 	 */
 	function getCount() {
 		return countLocal;
+	}
+}
+
+/**
+ * A build queue item, with the idNumber of the 
+ */
+function BuildQueueItem(idNumber, turnsToComplete) {
+
+	var idNumber 	= idNumber;
+	var turnsToComplete = turnsToComplete;
+
+	this.getIDNumber = getIDNumber;
+	this.getTurnsToComplete = getTurnsToComplete;
+
+	/**
+	 * Get this inventory item's ID number
+	 */
+	function getIDNumber() {
+		return idNumber;
+	}
+
+	/**
+	 * Get this inventory item's inventory count
+	 */
+	function getTurnsToComplete() {
+		return turnsToComplete;
+	}
+
+	/**
+	 * Reduce the number of turns to complete by one
+	 */
+	function decrementTurnsToComplete() {
+		turnsToComplete--;
 	}
 }
 
@@ -359,5 +403,21 @@ function SkyFlyerGamePiece(idNumber, pieceName, productionCost, attack, defense,
 	this.defense = defense;
 	this.experience = experience;
 	this.detection = detection;
+};
+
+/**
+ * The game configuration that is used as a parameter object to seed a SkyFlyerGameState
+ */
+function SkyFlyerGameConfig(turnNumber, playerCash, playerPoints, opponentStrength, gameUnitInventory, 
+	gameResearchInventory, unitInventory, researchInventory, buildQueueItem) {
+	this.turnNumber 			= turnNumber;
+	this.playerCash 			= playerCash;
+	this.playerPoints 			= playerPoints;
+	this.opponentStrength 		= opponentStrength;
+	this.gameUnitInventory 		= gameUnitInventory;
+	this.gameResearchInventory 	= gameResearchInventory;
+	this.unitInventory 			= unitInventory;
+	this.researchInventory 		= researchInventory;
+	this.buildQueueItem 		= buildQueueItem;
 };
 
