@@ -26,17 +26,6 @@ function SkyFlyerGame(gameState) {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
 /**
  * The major tracking object that holds all of the information about a game that is
  * currently being played. With a game state, a new game can be instantiated and returned

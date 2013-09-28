@@ -2,7 +2,8 @@
 module("Game Initialization");
 
 test("Constants initialize (turn, cash, points, opp str)", function() {
-	var gameConfiguration = new SkyFlyerGameConfig(5, 400, 800, 85, null,  buildTutorialResearchTree(), null, null);
+	var gameConfiguration = new SkyFlyerGameConfig(5, 400, 800, 85, null, 
+		buildTutorialResearchTree(), null, null);
 	var gameState = new SkyFlyerGameState(gameConfiguration);
 	ok(gameState);
 	equal(gameState.getTurn(), 5, "turn is 5");
@@ -18,7 +19,8 @@ test("Unit inventory initializes", function() {
 	playerInventory.push(new Inventory(2001, 6));
 	playerInventory.push(new Inventory(3001, 2));
 	playerInventory.push(new Inventory(4001, 0));
-	var gameConfiguration = new SkyFlyerGameConfig(0, 0, 0, 0, buildTutorialGameUnitInventory(),  buildTutorialResearchTree(), playerInventory, null);
+	var gameConfiguration = new SkyFlyerGameConfig(0, 0, 0, 0, buildTutorialGameUnitInventory(),  
+		buildTutorialResearchTree(), playerInventory, null);
 	var gameState = new SkyFlyerGameState(gameConfiguration);
 
 	// check the player's units
@@ -45,7 +47,8 @@ test("Check research project queue", function()  {
 });
 
 test("Check units available to build", function() {
-	var gameConfiguration = new SkyFlyerGameConfig(0, 0, 0, 0, buildTutorialGameUnitInventory(), buildTutorialResearchTree(), null, null);
+	var gameConfiguration = new SkyFlyerGameConfig(0, 0, 0, 0, buildTutorialGameUnitInventory(), 
+		buildTutorialResearchTree(), null, null);
 	var gameState = new SkyFlyerGameState(gameConfiguration);
 	equal(gameState.getAvailableBuildUnits().length, 4, "four units to build");
 	
@@ -57,7 +60,8 @@ test("Check units available to build", function() {
 });
 
 test("Check research available to conduct", function() {
-	var gameConfiguration = new SkyFlyerGameConfig(0, 0, 0, 0, buildTutorialGameUnitInventory(), buildTutorialResearchTree(), null, null);
+	var gameConfiguration = new SkyFlyerGameConfig(0, 0, 0, 0, buildTutorialGameUnitInventory(), 
+		buildTutorialResearchTree(), null, null);
 	var gameState = new SkyFlyerGameState(gameConfiguration);
 	equal(gameState.getAvailableResearchProjects().length, 3, "three research projects available");
 	
@@ -78,7 +82,8 @@ test("Check complex game state formation research available", function() {
 	researchInventory.push(new Inventory(8005));
 
 	// configure the game
-	var gameConfiguration = new SkyFlyerGameConfig(0, 0, 0, 0, buildTutorialGameUnitInventory(), buildTutorialResearchTree(), null, researchInventory);
+	var gameConfiguration = new SkyFlyerGameConfig(0, 0, 0, 0, buildTutorialGameUnitInventory(), 
+		buildTutorialResearchTree(), null, researchInventory);
 	var gameState = new SkyFlyerGameState(gameConfiguration);
 
 	// check game state
@@ -105,7 +110,8 @@ test("Check complex game state formation units available to build", function() {
 	researchInventory.push(new Inventory(8006));
 
 	// configure the game
-	var gameConfiguration = new SkyFlyerGameConfig(0, 0, 0, 0, buildTutorialGameUnitInventory(), buildTutorialResearchTree(), null, researchInventory);
+	var gameConfiguration = new SkyFlyerGameConfig(0, 0, 0, 0, buildTutorialGameUnitInventory(), 
+		buildTutorialResearchTree(), null, researchInventory);
 	var gameState = new SkyFlyerGameState(gameConfiguration);
 
 	// check game state
@@ -209,8 +215,6 @@ test("Check buy single unit", function() {
 
 	var game = new SkyFlyerGame(buildSimpleGame());
 
-	var gameState = buildSimpleGame();
-
 	equal(game.getState().getUnitInventory()[0].getIDNumber(), 1001);
 	equal(game.getState().getUnitInventory()[0].getCount(), 2);
 	equal(game.getState().getUnitInventory()[1].getIDNumber(), 2001);
@@ -223,7 +227,7 @@ test("Check buy single unit", function() {
 	// record how much cash the player has before the purchase
 	var previousCash = game.getState().getPlayerCash();
 
-	// now, I'm going to buy a Liberator at a cost of 100 units
+	// now, buy a Liberator at a cost of 100 units
 	game.buy(2001);
 
 	equal(game.getState().getPlayerCash() + 100, previousCash, "show that amount was decremented for purchase")
@@ -237,6 +241,44 @@ test("Check buy single unit", function() {
 	equal(game.getState().getUnitInventory()[3].getIDNumber(), 4001);
 	equal(game.getState().getUnitInventory()[3].getCount(), 5);
 
+})
+
+test("Check buy several units", function() {
+
+	// set up the game
+	var game = new SkyFlyerGame(buildComplexGame());
+
+	// record the player's cash
+	var playerCashBeforeBuying = game.getState().getPlayerCash();
+
+	// check the player's inventory
+	equal(game.getState().getUnitInventory()[0].getIDNumber(), 4001);
+	equal(game.getState().getUnitInventory()[0].getCount(), 8);
+	equal(game.getState().getUnitInventory()[1].getIDNumber(), 3002);
+	equal(game.getState().getUnitInventory()[1].getCount(), 3);
+	equal(game.getState().getUnitInventory()[2].getIDNumber(), 2002);
+	equal(game.getState().getUnitInventory()[2].getCount(), 2);
+	equal(game.getState().getUnitInventory()[3].getIDNumber(), 1002);
+	equal(game.getState().getUnitInventory()[3].getCount(), 1);
+
+	// buy three units
+	game.buy(2002);
+	game.buy(4001);
+	game.buy(4001);
+
+	// recheck the player's inventory with additions
+	equal(game.getState().getUnitInventory()[0].getIDNumber(), 4001);
+	equal(game.getState().getUnitInventory()[0].getCount(), 10);
+	equal(game.getState().getUnitInventory()[1].getIDNumber(), 3002);
+	equal(game.getState().getUnitInventory()[1].getCount(), 3);
+	equal(game.getState().getUnitInventory()[2].getIDNumber(), 2002);
+	equal(game.getState().getUnitInventory()[2].getCount(), 3);
+	equal(game.getState().getUnitInventory()[3].getIDNumber(), 1002);
+	equal(game.getState().getUnitInventory()[3].getCount(), 1);
+
+	// check that the cash was spent
+	equal((game.getState().getPlayerCash() + 400), playerCashBeforeBuying, 
+		"show that amount was decremented for purchase")
 
 })
 
@@ -280,9 +322,15 @@ function buildComplexGame() {
 	researchInventory.push(new Inventory(8004));
 	researchInventory.push(new Inventory(8006));
 
+	var userUnits = new Array();
+	userUnits.push(new Inventory(4001, 8));
+	userUnits.push(new Inventory(3002, 3));
+	userUnits.push(new Inventory(2002, 2));
+	userUnits.push(new Inventory(1002, 1));
+
 	// configure the game
 	var gameConfiguration = new SkyFlyerGameConfig(5, 400, 800, 85, buildTutorialGameUnitInventory(), 
-		buildTutorialResearchTree(), null, researchInventory);
+		buildTutorialResearchTree(), userUnits, researchInventory, null);
 	return new SkyFlyerGameState(gameConfiguration);
 
 }
