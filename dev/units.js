@@ -2,12 +2,28 @@
 // Joshua Dickson
 
 
-// function SkyFlyerGame(gameConfig) {
+function SkyFlyerGame(gameState) {
 
-// 	var gameState = new SkyFlyerGameState(gameConfig);
+	var gameState = gameState;
 
+	this.getState = function() {
+		return gameState;
+	}
 
-// }
+	this.getUnitByID = function(unitID) {
+		return gameState.getGamePieceByID(unitID);
+	}
+
+	this.buy = function(unitID) {
+		for(var i = 0; i < gameState.getUnitInventory().length; i++) {
+			if(gameState.getUnitInventory()[i].getIDNumber() == unitID) {
+				gameState.getUnitInventory()[i].increaseInventoryCount();
+				gameState.spend(gameState.getGamePieceByID(unitID).productionCost);
+				break;
+			}
+		}
+	}
+}
 
 
 
@@ -45,6 +61,14 @@ function SkyFlyerGameState(gameConfig, productionFunctions) {
 	var researchAvailableToDo			= getResearchAvailableToConduct();
 	var buildQueueItem					= gameConfig.buildQueueItem;
 	var productionFunctions				= productionFunctions;
+
+
+
+	this.getGamePieceByID = function(idNumber) {
+		return gameUnitInventory.getGamePieceByID(idNumber);
+	}
+	
+
 
 	/**
 	 * Get the production functions
@@ -94,6 +118,13 @@ function SkyFlyerGameState(gameConfig, productionFunctions) {
 	this.getPlayerCash = function() {
 		return playerCash;
 	};
+
+	/**
+	 * Lower this player's amount of cash by a given amount
+	 */
+	this.spend = function(amount) {
+		playerCash -= amount;
+	}
 
 	/**
 	 * Get the player's points
@@ -278,6 +309,10 @@ function Inventory(idNumber, count) {
 	 */
 	function getCount() {
 		return countLocal;
+	}
+
+	this.increaseInventoryCount = function() {
+		countLocal++;
 	}
 }
 

@@ -173,8 +173,9 @@ test("Test SkyFlyerFunctions as wrapper", function() {
 test("Test SkyFlyerFunctions in game", function() {
 
 	// build game functions
-	var gameFunctions = new SkyFlyerFunctions(new ProductionWrapper(new LinearProduction(2, 4)), 
-		new ProductionWrapper(new LinearProduction(4, 2)));
+	var gameFunctions = new SkyFlyerFunctions(
+		new ProductionWrapper(new LinearProduction(2, 4)), 		// player production
+		new ProductionWrapper(new LinearProduction(4, 2)));		// opponent defense
 
 	// build simple game with modification
 	var gameConfiguration = new SkyFlyerGameConfig(5, 400, 800, 85, buildTutorialGameUnitInventory(), 
@@ -189,35 +190,55 @@ test("Test SkyFlyerFunctions in game", function() {
 	equal(returnedFunctions.getPlayerProduction(0), 4, "2 * 0 + 4");
 	equal(returnedFunctions.getPlayerProduction(1), 6, "2 * 1 + 4");
 	equal(returnedFunctions.getPlayerProduction(5), 14, "2 * 5 + 4");
-
-
 });
 
+module("Starting A Game");
 
-// module("Purchasing Units");
+test("Create a simple SkyFlyerGame", function() {
+	ok(new SkyFlyerGame(buildSimpleGame(), null));
+})
 
-// test("Check buy single unit", function() {
-
-// 	var gameState = buildSimpleGame();
-
-// 	equal(gameState.unitInventory()[0].getIDNumber(), 1001);
-// 	equal(gameState.unitInventory()[0].getCount(), 2);
-// 	equal(gameState.unitInventory()[1].getIDNumber(), 2001);
-// 	equal(gameState.unitInventory()[1].getCount(), 0);
-// 	equal(gameState.unitInventory()[2].getIDNumber(), 3001);
-// 	equal(gameState.unitInventory()[2].getCount(), 10);
-// 	equal(gameState.unitInventory()[3].getIDNumber(), 4001);
-// 	equal(gameState.unitInventory()[3].getCount(), 5);
-
-// 	// now, we make a purchase by handing the ID number of the unit to buy...
-
-	
+test("Create a complex SkyFlyerGame", function() {
+	ok(new SkyFlyerGame(buildComplexGame()));
+})
 
 
-// });
+module("Purchasing Units");
+
+test("Check buy single unit", function() {
+
+	var game = new SkyFlyerGame(buildSimpleGame());
+
+	var gameState = buildSimpleGame();
+
+	equal(game.getState().getUnitInventory()[0].getIDNumber(), 1001);
+	equal(game.getState().getUnitInventory()[0].getCount(), 2);
+	equal(game.getState().getUnitInventory()[1].getIDNumber(), 2001);
+	equal(game.getState().getUnitInventory()[1].getCount(), 0);
+	equal(game.getState().getUnitInventory()[2].getIDNumber(), 3001);
+	equal(game.getState().getUnitInventory()[2].getCount(), 10);
+	equal(game.getState().getUnitInventory()[3].getIDNumber(), 4001);
+	equal(game.getState().getUnitInventory()[3].getCount(), 5);
+
+	// record how much cash the player has before the purchase
+	var previousCash = game.getState().getPlayerCash();
+
+	// now, I'm going to buy a Liberator at a cost of 100 units
+	game.buy(2001);
+
+	equal(game.getState().getPlayerCash() + 100, previousCash, "show that amount was decremented for purchase")
+
+	equal(game.getState().getUnitInventory()[0].getIDNumber(), 1001);
+	equal(game.getState().getUnitInventory()[0].getCount(), 2);
+	equal(game.getState().getUnitInventory()[1].getIDNumber(), 2001);
+	equal(game.getState().getUnitInventory()[1].getCount(), 1, "show that item was purchased");		
+	equal(game.getState().getUnitInventory()[2].getIDNumber(), 3001);
+	equal(game.getState().getUnitInventory()[2].getCount(), 10);
+	equal(game.getState().getUnitInventory()[3].getIDNumber(), 4001);
+	equal(game.getState().getUnitInventory()[3].getCount(), 5);
 
 
-
+})
 
 function buildSimpleGame() {
 
@@ -271,25 +292,25 @@ function buildComplexGame() {
 // tutorial initiation...
 function buildTutorialGameUnitInventory() {
 	var inventory = new Array();
-	inventory.push(new SkyFlyerGamePiece(1001, "Mustang", 1, 4, 3, 3, 5, 1));
-	inventory.push(new SkyFlyerGamePiece(1002, "Phantom", 1, 4, 3, 3, 5, 1));
-	inventory.push(new SkyFlyerGamePiece(1003, "Eagle", 1, 4, 3, 3, 5, 1));
-	inventory.push(new SkyFlyerGamePiece(1004, "Lightning", 1, 4, 3, 3, 5, 1));
+	inventory.push(new SkyFlyerGamePiece(1001, "Mustang", 100, 4, 3, 3, 5, 1));
+	inventory.push(new SkyFlyerGamePiece(1002, "Phantom", 200, 4, 3, 3, 5, 1));
+	inventory.push(new SkyFlyerGamePiece(1003, "Eagle", 300, 4, 3, 3, 5, 1));
+	inventory.push(new SkyFlyerGamePiece(1004, "Lightning", 400, 4, 3, 3, 5, 1));
 
-	inventory.push(new SkyFlyerGamePiece(2001, "Liberator", 1, 4, 3, 3, 5, 1));
-	inventory.push(new SkyFlyerGamePiece(2002, "Stratofortress", 1, 4, 3, 3, 5, 1));
-	inventory.push(new SkyFlyerGamePiece(2003, "Lancer", 1, 4, 3, 3, 5, 1));
-	inventory.push(new SkyFlyerGamePiece(2004, "Spirit", 1, 4, 3, 3, 5, 1));
+	inventory.push(new SkyFlyerGamePiece(2001, "Liberator", 100, 4, 3, 3, 5, 1));
+	inventory.push(new SkyFlyerGamePiece(2002, "Stratofortress", 200, 4, 3, 3, 5, 1));
+	inventory.push(new SkyFlyerGamePiece(2003, "Lancer", 300, 4, 3, 3, 5, 1));
+	inventory.push(new SkyFlyerGamePiece(2004, "Spirit", 400, 4, 3, 3, 5, 1));
 
-	inventory.push(new SkyFlyerGamePiece(3001, "Spitfire", 1, 4, 3, 3, 5, 1));
-	inventory.push(new SkyFlyerGamePiece(3002, "Flagon", 1, 4, 3, 3, 5, 1));
-	inventory.push(new SkyFlyerGamePiece(3003, "Nighthawk", 1, 4, 3, 3, 5, 1));
-	inventory.push(new SkyFlyerGamePiece(3004, "Raptor", 1, 4, 3, 3, 5, 1));
+	inventory.push(new SkyFlyerGamePiece(3001, "Spitfire", 100, 4, 3, 3, 5, 1));
+	inventory.push(new SkyFlyerGamePiece(3002, "Flagon", 200, 4, 3, 3, 5, 1));
+	inventory.push(new SkyFlyerGamePiece(3003, "Nighthawk", 300, 4, 3, 3, 5, 1));
+	inventory.push(new SkyFlyerGamePiece(3004, "Raptor", 400, 4, 3, 3, 5, 1));
 
-	inventory.push(new SkyFlyerGamePiece(4001, "Rocket", 1, 4, 3, 3, 5, 1));
-	inventory.push(new SkyFlyerGamePiece(4002, "Missile", 1, 4, 3, 3, 5, 1));
-	inventory.push(new SkyFlyerGamePiece(4003, "ICBM", 1, 4, 3, 3, 5, 1));
-	inventory.push(new SkyFlyerGamePiece(4004, "Predator", 1, 4, 3, 3, 5, 1));
+	inventory.push(new SkyFlyerGamePiece(4001, "Rocket", 100, 4, 3, 3, 5, 1));
+	inventory.push(new SkyFlyerGamePiece(4002, "Missile", 200, 4, 3, 3, 5, 1));
+	inventory.push(new SkyFlyerGamePiece(4003, "ICBM", 300, 4, 3, 3, 5, 1));
+	inventory.push(new SkyFlyerGamePiece(4004, "Predator", 400, 4, 3, 3, 5, 1));
 
 	return inventory;
 };
