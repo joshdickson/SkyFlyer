@@ -1,55 +1,62 @@
 
 module("Game Initialization");
 
-test("Constants initialize (turn, cash, points, opp str)", function() {
-	var gameConfiguration = new SkyFlyerGameConfig(5, 400, 800, 85, null, 
-		buildTutorialResearchTree(), null, null);
-	var gameState = new SkyFlyerGameState(gameConfiguration);
-	ok(gameState);
-	equal(gameState.getTurn(), 5, "turn is 5");
-	equal(gameState.getPlayerCash(), 400, "cash is 400");
-	equal(gameState.getPoints(), 800, "points are 800");
-	equal(gameState.getOpponentStrength(), 85, "opp strength is 85");
+test("Constants initialize", function() {
+	
+	var newGameConfiguration = new SkyFlyerGameConfigModel({
+	    turn: 5,
+	    playerCash: 400,
+	    playerPoints: 800,
+	    opponentStrength: 85,
+	    gameResearchInventory: buildTutorialResearchModelTree()
+  	});
+
+	equal(newGameConfiguration.get('turn'), 5, "turn is 5");
+	equal(newGameConfiguration.get('playerCash'), 400, "cash is 400");
+	equal(newGameConfiguration.get('playerPoints'), 800, "points are 800");
+	equal(newGameConfiguration.get('opponentStrength'), 85, "opp strength is 85");
 });
 
 test("Unit inventory initializes", function() {
 	// set up the game configuration
-	var playerInventory = new Array();
-	playerInventory.push(new Inventory(1001, 10));
-	playerInventory.push(new Inventory(2001, 6));
-	playerInventory.push(new Inventory(3001, 2));
-	playerInventory.push(new Inventory(4001, 0));
-	var gameConfiguration = new SkyFlyerGameConfig(0, 0, 0, 0, buildTutorialGameUnitInventory(),  
-		buildTutorialResearchTree(), playerInventory, null);
-	var gameState = new SkyFlyerGameState(gameConfiguration);
+	var inventoryItems = new InventoryModelItems();
+	inventoryItems.add(new InventoryModel({'idNumber': 1001, 'count': 10}));
+	inventoryItems.add(new InventoryModel({'idNumber': 2001, 'count': 6}));
+	inventoryItems.add(new InventoryModel({'idNumber': 3001, 'count': 2}));
+	inventoryItems.add(new InventoryModel({'idNumber': 4001, 'count': 0}));
+
+	var gameConfiguration = new SkyFlyerGameConfigModel({
+		'gameUnitInventory': buildTutorialGameUnitModelInventory(),
+		'gameResearchInventory': buildTutorialResearchModelTree(),
+		'unitInventory': inventoryItems
+	});
+
+	var gameState = new SkyFlyerGameStateModel({'gameConfig': gameConfiguration});
 
 	// check the player's units
-	ok(gameState.getUnitInventory());
-	equal(gameState.getUnitInventory().length, 4, "four inventory items");
-	equal(gameState.getUnitInventory()[0].getIDNumber(), 1001, "first inventory item id matches");
-	equal(gameState.getUnitInventory()[0].getCount(), 10, "first inventory item count matches");
-	equal(gameState.getUnitInventory()[1].getIDNumber(), 2001, "second inventory item id matches");
-	equal(gameState.getUnitInventory()[1].getCount(), 6, "second inventory item count matches");
-	equal(gameState.getUnitInventory()[2].getIDNumber(), 3001, "third inventory item id matches");
-	equal(gameState.getUnitInventory()[2].getCount(), 2, "third inventory item count matches");
-	equal(gameState.getUnitInventory()[3].getIDNumber(), 4001, "fourth inventory item id matches");
-	equal(gameState.getUnitInventory()[3].getCount(), 0, "fourth inventory item count matches");
+	equal(gameState.get('gameConfig').get('unitInventory').length, 4);
 });
 
 test("Check research project queue", function()  {
 
-	var gameConfiguration = new SkyFlyerGameConfig(0,0, 0, 0, buildTutorialGameUnitInventory(), 
-		buildTutorialResearchTree(), null, null, new BuildQueueItem(8001, 5));
-	var gameState =  new SkyFlyerGameState(gameConfiguration);
+	var gameConfiguration = new SkyFlyerGameConfigModel({
+		'buildQueueItem': new InventoryModel({'idNumber': 8001, 'count': 5})
+	});
 
-	equal(gameState.getBuildQueueItem().getIDNumber(), 8001, "working on 8001");
-	equal(gameState.getBuildQueueItem().getTurnsToComplete(), 5, "5 turns to complete");
+	var gameState = new SkyFlyerGameStateModel({'gameConfig': gameConfiguration});
+
+	equal(gameState.get('gameConfig').get('buildQueueItem').get('idNumber'), 8001, "working on 8001");
+	equal(gameState.get('gameConfig').get('buildQueueItem').get('count'), 5, "5 turns to complete");
+
 });
 
 test("Check units available to build", function() {
-	var gameConfiguration = new SkyFlyerGameConfig(0, 0, 0, 0, buildTutorialGameUnitInventory(), 
-		buildTutorialResearchTree(), null, null);
-	var gameState = new SkyFlyerGameState(gameConfiguration);
+
+	var gameState = new SkyFlyerGameStateModel({'gameConfig': new SkyFlyerGameConfigModel({
+		'gameUnitInventory': buildTutorialGameUnitModelInventory(),
+		'gameResearchInventory': buildTutorialResearchModelTree()
+	})});
+
 	equal(gameState.getAvailableBuildUnits().length, 4, "four units to build");
 	
 	// check contents
@@ -60,9 +67,12 @@ test("Check units available to build", function() {
 });
 
 test("Check research available to conduct", function() {
-	var gameConfiguration = new SkyFlyerGameConfig(0, 0, 0, 0, buildTutorialGameUnitInventory(), 
-		buildTutorialResearchTree(), null, null);
-	var gameState = new SkyFlyerGameState(gameConfiguration);
+	var gameState = new SkyFlyerGameStateModel({'gameConfig': new SkyFlyerGameConfigModel({
+		'gameUnitInventory': buildTutorialGameUnitModelInventory(),
+		'gameResearchInventory': buildTutorialResearchModelTree()
+	})});
+
+
 	equal(gameState.getAvailableResearchProjects().length, 3, "three research projects available");
 	
 	// check contents
@@ -74,19 +84,21 @@ test("Check research available to conduct", function() {
 test("Check complex game state formation research available", function() {
 
 	// build the research inventory
-	var researchInventory = new Array();
-	researchInventory.push(new Inventory(0));
-	researchInventory.push(new Inventory(8001));
-	researchInventory.push(new Inventory(8002));
-	researchInventory.push(new Inventory(8008));
-	researchInventory.push(new Inventory(8005));
+	var researchInventory = new InventoryModelItems();
+	researchInventory.add(new InventoryModel({'idNumber': 0}));
+	researchInventory.add(new InventoryModel({'idNumber': 8001}));
+	researchInventory.add(new InventoryModel({'idNumber': 8002}));
+	researchInventory.add(new InventoryModel({'idNumber': 8008}));
+	researchInventory.add(new InventoryModel({'idNumber': 8005}));
 
 	// configure the game
-	var gameConfiguration = new SkyFlyerGameConfig(0, 0, 0, 0, buildTutorialGameUnitInventory(), 
-		buildTutorialResearchTree(), null, researchInventory);
-	var gameState = new SkyFlyerGameState(gameConfiguration);
+	var gameState = new SkyFlyerGameStateModel({'gameConfig': new SkyFlyerGameConfigModel({
+		'gameUnitInventory': buildTutorialGameUnitModelInventory(),
+		'gameResearchInventory': buildTutorialResearchModelTree(),
+		'researchInventory': researchInventory
+	})});
 
-	// check game state
+	// // check game state
 	equal(gameState.getAvailableResearchProjects().length, 5, "five projects now available");
 	equal(gameState.getAvailableResearchProjects()[0], 8003, "flagon factory is first project");
 	equal(gameState.getAvailableResearchProjects()[1], 8007, "air superiority second project");
@@ -99,20 +111,22 @@ test("Check complex game state formation research available", function() {
 test("Check complex game state formation units available to build", function() {
 
 	// build the research inventory
-	var researchInventory = new Array();
-	researchInventory.push(new Inventory(0));
-	researchInventory.push(new Inventory(8001));
-	researchInventory.push(new Inventory(8002));
-	researchInventory.push(new Inventory(8008));
-	researchInventory.push(new Inventory(8005));
-	researchInventory.push(new Inventory(8003));
-	researchInventory.push(new Inventory(8004));
-	researchInventory.push(new Inventory(8006));
+	var researchInventory = new InventoryModelItems();
+	researchInventory.add(new InventoryModel({'idNumber': 0}));
+	researchInventory.add(new InventoryModel({'idNumber': 8001}));
+	researchInventory.add(new InventoryModel({'idNumber': 8002}));
+	researchInventory.add(new InventoryModel({'idNumber': 8008}));
+	researchInventory.add(new InventoryModel({'idNumber': 8005}));
+	researchInventory.add(new InventoryModel({'idNumber': 8003}));
+	researchInventory.add(new InventoryModel({'idNumber': 8004}));
+	researchInventory.add(new InventoryModel({'idNumber': 8006}));
 
 	// configure the game
-	var gameConfiguration = new SkyFlyerGameConfig(0, 0, 0, 0, buildTutorialGameUnitInventory(), 
-		buildTutorialResearchTree(), null, researchInventory);
-	var gameState = new SkyFlyerGameState(gameConfiguration);
+	var gameState = new SkyFlyerGameStateModel({'gameConfig': new SkyFlyerGameConfigModel({
+		'gameUnitInventory': buildTutorialGameUnitModelInventory(),
+		'gameResearchInventory': buildTutorialResearchModelTree(),
+		'researchInventory': researchInventory
+	})});
 
 	// check game state
 	equal(gameState.getAvailableBuildUnits().length, 4, "still four units available");
@@ -176,36 +190,14 @@ test("Test SkyFlyerFunctions as wrapper", function() {
 
 });
 
-test("Test SkyFlyerFunctions in game", function() {
-
-	// build game functions
-	var gameFunctions = new SkyFlyerFunctions(
-		new ProductionWrapper(new LinearProduction(2, 4)), 		// player production
-		new ProductionWrapper(new LinearProduction(4, 2)));		// opponent defense
-
-	// build simple game with modification
-	var gameConfiguration = new SkyFlyerGameConfig(5, 400, 800, 85, buildTutorialGameUnitInventory(), 
-		buildTutorialResearchTree(), null, null, null);
-	var gameState = new SkyFlyerGameState(gameConfiguration, gameFunctions);
-
-	// get the game functions
-	var returnedFunctions = gameState.getProductionFunctions();
-	ok(returnedFunctions);
-
-	// test with same vals as above
-	equal(returnedFunctions.getPlayerProduction(0), 4, "2 * 0 + 4");
-	equal(returnedFunctions.getPlayerProduction(1), 6, "2 * 1 + 4");
-	equal(returnedFunctions.getPlayerProduction(5), 14, "2 * 5 + 4");
-});
-
 module("Starting A Game");
 
 test("Create a simple SkyFlyerGame", function() {
-	ok(new SkyFlyerGame(buildSimpleGame(), null));
+	ok(new SkyFlyerGameModel({'gameState': buildSimpleGame()}));
 })
 
 test("Create a complex SkyFlyerGame", function() {
-	ok(new SkyFlyerGame(buildComplexGame()));
+	ok(new SkyFlyerGameModel({'gameState': buildComplexGame()}));
 })
 
 
@@ -213,53 +205,55 @@ module("Purchasing Units");
 
 test("Check buy single unit", function() {
 
-	var game = new SkyFlyerGame(buildSimpleGame());
+	var game = new SkyFlyerGameModel({'gameState': buildSimpleGame()});
 
-	equal(game.getState().getUnitInventory()[0].getIDNumber(), 1001);
-	equal(game.getState().getUnitInventory()[0].getCount(), 2);
-	equal(game.getState().getUnitInventory()[1].getIDNumber(), 2001);
-	equal(game.getState().getUnitInventory()[1].getCount(), 0);
-	equal(game.getState().getUnitInventory()[2].getIDNumber(), 3001);
-	equal(game.getState().getUnitInventory()[2].getCount(), 10);
-	equal(game.getState().getUnitInventory()[3].getIDNumber(), 4001);
-	equal(game.getState().getUnitInventory()[3].getCount(), 5);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').length, 4);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(0).get('idNumber'), 1001);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(0).get('count'), 2);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(1).get('idNumber'), 2001);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(1).get('count'), 0);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(2).get('idNumber'), 3001);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(2).get('count'), 10);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(3).get('idNumber'), 4001);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(3).get('count'), 5);
 
 	// record how much cash the player has before the purchase
-	var previousCash = game.getState().getPlayerCash();
+	var previousCash = game.get('gameState').get('gameConfig').get('playerCash');
 
 	// now, buy a Liberator at a cost of 100 units
 	game.buy(2001);
 
-	equal(game.getState().getPlayerCash() + 100, previousCash, "show that amount was decremented for purchase")
+	equal(game.get('gameState').get('gameConfig').get('playerCash') + 100, previousCash, "show that amount was decremented for purchase")
 
-	equal(game.getState().getUnitInventory()[0].getIDNumber(), 1001);
-	equal(game.getState().getUnitInventory()[0].getCount(), 2);
-	equal(game.getState().getUnitInventory()[1].getIDNumber(), 2001);
-	equal(game.getState().getUnitInventory()[1].getCount(), 1, "show that item was purchased");		
-	equal(game.getState().getUnitInventory()[2].getIDNumber(), 3001);
-	equal(game.getState().getUnitInventory()[2].getCount(), 10);
-	equal(game.getState().getUnitInventory()[3].getIDNumber(), 4001);
-	equal(game.getState().getUnitInventory()[3].getCount(), 5);
-
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').length, 4);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(0).get('idNumber'), 1001);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(0).get('count'), 2);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(1).get('idNumber'), 2001);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(1).get('count'), 1);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(2).get('idNumber'), 3001);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(2).get('count'), 10);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(3).get('idNumber'), 4001);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(3).get('count'), 5);
 })
 
 test("Check buy several units", function() {
 
 	// set up the game
-	var game = new SkyFlyerGame(buildComplexGame());
+	var game = new SkyFlyerGameModel({'gameState': buildComplexGame()})
 
 	// record the player's cash
-	var playerCashBeforeBuying = game.getState().getPlayerCash();
+	var playerCashBeforeBuying = game.get('gameState').get('gameConfig').get('playerCash');
 
 	// check the player's inventory
-	equal(game.getState().getUnitInventory()[0].getIDNumber(), 4001);
-	equal(game.getState().getUnitInventory()[0].getCount(), 8);
-	equal(game.getState().getUnitInventory()[1].getIDNumber(), 3002);
-	equal(game.getState().getUnitInventory()[1].getCount(), 3);
-	equal(game.getState().getUnitInventory()[2].getIDNumber(), 2002);
-	equal(game.getState().getUnitInventory()[2].getCount(), 2);
-	equal(game.getState().getUnitInventory()[3].getIDNumber(), 1002);
-	equal(game.getState().getUnitInventory()[3].getCount(), 1);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').length, 4);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(0).get('idNumber'), 4001);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(0).get('count'), 8);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(1).get('idNumber'), 3002);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(1).get('count'), 3);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(2).get('idNumber'), 2002);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(2).get('count'), 2);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(3).get('idNumber'), 1002);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(3).get('count'), 1);
 
 	// buy three units
 	game.buy(2002);
@@ -267,43 +261,47 @@ test("Check buy several units", function() {
 	game.buy(4001);
 
 	// recheck the player's inventory with additions
-	equal(game.getState().getUnitInventory()[0].getIDNumber(), 4001);
-	equal(game.getState().getUnitInventory()[0].getCount(), 10);
-	equal(game.getState().getUnitInventory()[1].getIDNumber(), 3002);
-	equal(game.getState().getUnitInventory()[1].getCount(), 3);
-	equal(game.getState().getUnitInventory()[2].getIDNumber(), 2002);
-	equal(game.getState().getUnitInventory()[2].getCount(), 3);
-	equal(game.getState().getUnitInventory()[3].getIDNumber(), 1002);
-	equal(game.getState().getUnitInventory()[3].getCount(), 1);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').length, 4);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(0).get('idNumber'), 4001);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(0).get('count'), 10);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(1).get('idNumber'), 3002);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(1).get('count'), 3);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(2).get('idNumber'), 2002);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(2).get('count'), 3);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(3).get('idNumber'), 1002);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(3).get('count'), 1);
 
 	// check that the cash was spent
-	equal((game.getState().getPlayerCash() + 400), playerCashBeforeBuying, 
-		"show that amount was decremented for purchase")
+	equal(game.get('gameState').get('gameConfig').get('playerCash') + 400, playerCashBeforeBuying, "show that amount was decremented for purchase")
 
 })
 
 function buildSimpleGame() {
 
-	// turn 		4
+	// turn 		5
 	// cash 		400
 	// points		800
 	// opp str 		85
 
-	// we must seed the units that the user starts with...
-	var userUnits = new Array();
-	userUnits.push(new Inventory(1001, 2));
-	userUnits.push(new Inventory(2001, 0));
-	userUnits.push(new Inventory(3001, 10));
-	userUnits.push(new Inventory(4001, 5));
+	// seed the units that the user starts with...
+	var playerUnitInventory = new InventoryModelItems();
+	playerUnitInventory.add(new InventoryModel({'idNumber': 1001, 'count': 2}));
+	playerUnitInventory.add(new InventoryModel({'idNumber': 2001, 'count': 0}));
+	playerUnitInventory.add(new InventoryModel({'idNumber': 3001, 'count': 10}));
+	playerUnitInventory.add(new InventoryModel({'idNumber': 4001, 'count': 5}));
 
 	// configure the game
-	var gameConfiguration = new SkyFlyerGameConfig(5, 400, 800, 85, buildTutorialGameUnitInventory(), 
-		buildTutorialResearchTree(), userUnits, null, null);
-	return new SkyFlyerGameState(gameConfiguration);
-
+	return new SkyFlyerGameStateModel({'gameConfig': new SkyFlyerGameConfigModel({
+		'gameUnitInventory': buildTutorialGameUnitModelInventory(),
+		'gameResearchInventory': buildTutorialResearchModelTree(),
+		'playerUnitInventory': playerUnitInventory,
+		'turnNumber': 5,
+		'playerCash': 400,
+		'playerPoints': 800,
+		'opponentStrength': 85,
+		
+	})});
 }
-
-
 
 function buildComplexGame() {
 
@@ -312,88 +310,96 @@ function buildComplexGame() {
 	// points		800
 	// opp str 		85
 
-	var researchInventory = new Array();
-	researchInventory.push(new Inventory(0));
-	researchInventory.push(new Inventory(8001));
-	researchInventory.push(new Inventory(8002));
-	researchInventory.push(new Inventory(8008));
-	researchInventory.push(new Inventory(8005));
-	researchInventory.push(new Inventory(8003));
-	researchInventory.push(new Inventory(8004));
-	researchInventory.push(new Inventory(8006));
+	// build the research inventory
+	var researchInventory = new InventoryModelItems();
+	researchInventory.add(new InventoryModel({'idNumber': 0}));
+	researchInventory.add(new InventoryModel({'idNumber': 8001}));
+	researchInventory.add(new InventoryModel({'idNumber': 8002}));
+	researchInventory.add(new InventoryModel({'idNumber': 8008}));
+	researchInventory.add(new InventoryModel({'idNumber': 8005}));
+	researchInventory.add(new InventoryModel({'idNumber': 8003}));
+	researchInventory.add(new InventoryModel({'idNumber': 8004}));
+	researchInventory.add(new InventoryModel({'idNumber': 8006}));
 
-	var userUnits = new Array();
-	userUnits.push(new Inventory(4001, 8));
-	userUnits.push(new Inventory(3002, 3));
-	userUnits.push(new Inventory(2002, 2));
-	userUnits.push(new Inventory(1002, 1));
+	// seed the units that the user starts with...
+	var playerUnitInventory = new InventoryModelItems();
+	playerUnitInventory.add(new InventoryModel({'idNumber': 4001, 'count': 8}));
+	playerUnitInventory.add(new InventoryModel({'idNumber': 3002, 'count': 3}));
+	playerUnitInventory.add(new InventoryModel({'idNumber': 2002, 'count': 2}));
+	playerUnitInventory.add(new InventoryModel({'idNumber': 1002, 'count': 1}));
 
 	// configure the game
-	var gameConfiguration = new SkyFlyerGameConfig(5, 400, 800, 85, buildTutorialGameUnitInventory(), 
-		buildTutorialResearchTree(), userUnits, researchInventory, null);
-	return new SkyFlyerGameState(gameConfiguration);
-
+	return new SkyFlyerGameStateModel({'gameConfig': new SkyFlyerGameConfigModel({
+		'gameUnitInventory': buildTutorialGameUnitModelInventory(),
+		'gameResearchInventory': buildTutorialResearchModelTree(),
+		'researchInventory': researchInventory,
+		'playerUnitInventory': playerUnitInventory,
+		'turnNumber': 5,
+		'playerCash': 400,
+		'playerPoints': 800,
+		'opponentStrength': 85
+	})});
 }
 
+function buildTutorialGameUnitModelInventory() {
+	var gamePieces = new GamePieceCollection();
+	gamePieces.add(new SkyFlyerGamePieceModel({'idNumber': '1001', 'pieceName': 'Mustang', 'productionCost': '100', 'attack': '4', 'defense': '3', 'experience': '3', 'detection': '5'}));
+	gamePieces.add(new SkyFlyerGamePieceModel({'idNumber': '1002', 'pieceName': 'Phantom', 'productionCost': '200', 'attack': '4', 'defense': '3', 'experience': '3', 'detection': '5', 'makesObsolete': [1001]}));
+	gamePieces.add(new SkyFlyerGamePieceModel({'idNumber': '1003', 'pieceName': 'Eagle', 'productionCost': '300', 'attack': '4', 'defense': '3', 'experience': '3', 'detection': '5', 'makesObsolete': [1002]}));
+	gamePieces.add(new SkyFlyerGamePieceModel({'idNumber': '1004', 'pieceName': 'Lightning', 'productionCost': '400', 'attack': '4', 'defense': '3', 'experience': '3', 'detection': '5', 'makesObsolete': [1003]}));
+
+	gamePieces.add(new SkyFlyerGamePieceModel({'idNumber': '2001', 'pieceName': 'Liberator', 'productionCost': '100', 'attack': '4', 'defense': '3', 'experience': '3', 'detection': '5'}));
+	gamePieces.add(new SkyFlyerGamePieceModel({'idNumber': '2002', 'pieceName': 'Stratofortress', 'productionCost': '200', 'attack': '4', 'defense': '3', 'experience': '3', 'detection': '5', 'makesObsolete': [2001]}));
+	gamePieces.add(new SkyFlyerGamePieceModel({'idNumber': '2003', 'pieceName': 'Lancer', 'productionCost': '300', 'attack': '4', 'defense': '3', 'experience': '3', 'detection': '5', 'makesObsolete': [2002]}));
+	gamePieces.add(new SkyFlyerGamePieceModel({'idNumber': '2004', 'pieceName': 'Spirit', 'productionCost': '400', 'attack': '4', 'defense': '3', 'experience': '3', 'detection': '5', 'makesObsolete': [2003]}));
+
+	gamePieces.add(new SkyFlyerGamePieceModel({'idNumber': '3001', 'pieceName': 'Spitfire', 'productionCost': '100', 'attack': '4', 'defense': '3', 'experience': '3', 'detection': '5'}));
+	gamePieces.add(new SkyFlyerGamePieceModel({'idNumber': '3002', 'pieceName': 'Flagon', 'productionCost': '200', 'attack': '4', 'defense': '3', 'experience': '3', 'detection': '5', 'makesObsolete': [3001]}));
+	gamePieces.add(new SkyFlyerGamePieceModel({'idNumber': '3003', 'pieceName': 'Nighthawk', 'productionCost': '300', 'attack': '4', 'defense': '3', 'experience': '3', 'detection': '5', 'makesObsolete': [3002]}));
+	gamePieces.add(new SkyFlyerGamePieceModel({'idNumber': '3004', 'pieceName': 'Raptor', 'productionCost': '400', 'attack': '4', 'defense': '3', 'experience': '3', 'detection': '5', 'makesObsolete': [3003]}));
+
+	gamePieces.add(new SkyFlyerGamePieceModel({'idNumber': '4001', 'pieceName': 'Rocket', 'productionCost': '100', 'attack': '4', 'defense': '3', 'experience': '3', 'detection': '5'}));
+	gamePieces.add(new SkyFlyerGamePieceModel({'idNumber': '4002', 'pieceName': 'Missile', 'productionCost': '200', 'attack': '4', 'defense': '3', 'experience': '3', 'detection': '5', 'makesObsolete': [4001]}));
+	gamePieces.add(new SkyFlyerGamePieceModel({'idNumber': '4003', 'pieceName': 'ICBM', 'productionCost': '300', 'attack': '4', 'defense': '3', 'experience': '3', 'detection': '5', 'makesObsolete': [4002]}));
+	gamePieces.add(new SkyFlyerGamePieceModel({'idNumber': '4004', 'pieceName': 'Predator', 'productionCost': '400', 'attack': '4', 'defense': '3', 'experience': '3', 'detection': '5', 'makesObsolete': [4003]}));
 
 
-// tutorial initiation...
-function buildTutorialGameUnitInventory() {
-	var inventory = new Array();
-	inventory.push(new SkyFlyerGamePiece(1001, "Mustang", 100, 4, 3, 3, 5, 1));
-	inventory.push(new SkyFlyerGamePiece(1002, "Phantom", 200, 4, 3, 3, 5, 1));
-	inventory.push(new SkyFlyerGamePiece(1003, "Eagle", 300, 4, 3, 3, 5, 1));
-	inventory.push(new SkyFlyerGamePiece(1004, "Lightning", 400, 4, 3, 3, 5, 1));
+	return gamePieces;
+}
 
-	inventory.push(new SkyFlyerGamePiece(2001, "Liberator", 100, 4, 3, 3, 5, 1));
-	inventory.push(new SkyFlyerGamePiece(2002, "Stratofortress", 200, 4, 3, 3, 5, 1));
-	inventory.push(new SkyFlyerGamePiece(2003, "Lancer", 300, 4, 3, 3, 5, 1));
-	inventory.push(new SkyFlyerGamePiece(2004, "Spirit", 400, 4, 3, 3, 5, 1));
+function buildTutorialResearchModelTree() {
+	var researchProjects = new ResearchCollection();
 
-	inventory.push(new SkyFlyerGamePiece(3001, "Spitfire", 100, 4, 3, 3, 5, 1));
-	inventory.push(new SkyFlyerGamePiece(3002, "Flagon", 200, 4, 3, 3, 5, 1));
-	inventory.push(new SkyFlyerGamePiece(3003, "Nighthawk", 300, 4, 3, 3, 5, 1));
-	inventory.push(new SkyFlyerGamePiece(3004, "Raptor", 400, 4, 3, 3, 5, 1));
+	researchProjects.add(new SkyFlyerResearchModel({'idNumber': '0', 'researchName': 'startup', 'shortName': '', 'productionCost': '0', 'unlockResearch': [8001, 8002, 8008], 'unlockUnit': [1001, 2001, 3001, 4001]}));
+	researchProjects.add(new SkyFlyerResearchModel({'idNumber': '8001', 'researchName': 'Jet Engines', 'shortName': 'Jt', 'productionCost': '16', 'unlockResearch': [8003, 8005]}));
+	researchProjects.add(new SkyFlyerResearchModel({'idNumber': '8002', 'researchName': 'Dogfighting', 'shortName': 'Dg', 'productionCost': '16', 'unlockResearch': [8007]}));
+	researchProjects.add(new SkyFlyerResearchModel({'idNumber': '8003', 'researchName': 'Flagon Factory', 'Fl': '', 'productionCost': '16', 'unlockUnit': [3002]}));
+	researchProjects.add(new SkyFlyerResearchModel({'idNumber': '8004', 'researchName': 'Phantom Factory', 'shortName': 'Ph', 'productionCost': '16', 'unlockUnit': [1002]}));
+	researchProjects.add(new SkyFlyerResearchModel({'idNumber': '8005', 'researchName': 'Modern Airframes', 'shortName': 'M', 'productionCost': '16', 'unlockResearch': [8004, 8006]}));
 
-	inventory.push(new SkyFlyerGamePiece(4001, "Rocket", 100, 4, 3, 3, 5, 1));
-	inventory.push(new SkyFlyerGamePiece(4002, "Missile", 200, 4, 3, 3, 5, 1));
-	inventory.push(new SkyFlyerGamePiece(4003, "ICBM", 300, 4, 3, 3, 5, 1));
-	inventory.push(new SkyFlyerGamePiece(4004, "Predator", 400, 4, 3, 3, 5, 1));
+	researchProjects.add(new SkyFlyerResearchModel({'idNumber': '8006', 'researchName': 'Stratofortress Plant', 'shortName': 'St', 'productionCost': '16', 'unlockUnit': [2002]}));
+	researchProjects.add(new SkyFlyerResearchModel({'idNumber': '8007', 'researchName': 'Air Superiority', 'shortName': 'A', 'productionCost': '16', 'unlockResearch': [8012]}));
+	researchProjects.add(new SkyFlyerResearchModel({'idNumber': '8008', 'researchName': 'Night Bombing', 'shortName': 'Nb', 'productionCost': '16', 'unlockResearch': [8009]}));
+	researchProjects.add(new SkyFlyerResearchModel({'idNumber': '8009', 'researchName': 'Modern Rocketry', 'shortName': 'Mr', 'productionCost': '16', 'unlockResearch': [8010, 8013]}));
+	researchProjects.add(new SkyFlyerResearchModel({'idNumber': '8010', 'researchName': 'Missile Silo', 'shortName': 'Ms', 'productionCost': '16', 'unlockUnit': [4002]}));
 
-	return inventory;
-};
+	researchProjects.add(new SkyFlyerResearchModel({'idNumber': '8011', 'researchName': 'Stealth', 'shortName': 'S', 'productionCost': '16', 'unlockResearch': [8015, 8019]}));
+	researchProjects.add(new SkyFlyerResearchModel({'idNumber': '8012', 'researchName': 'Bomber Program', 'shortName': 'Bp', 'productionCost': '16', 'unlockResearch': [8017, 8022]}));
+	researchProjects.add(new SkyFlyerResearchModel({'idNumber': '8013', 'researchName': 'Space Center', 'shortName': 'Sc', 'productionCost': '16', 'unlockResearch': [8016]}));
+	researchProjects.add(new SkyFlyerResearchModel({'idNumber': '8014', 'researchName': 'Eagle Factory', 'shortName': 'Ef', 'productionCost': '16', 'unlockUnit': [1003]}));
+	researchProjects.add(new SkyFlyerResearchModel({'idNumber': '8015', 'researchName': 'Nighthawk Plant', 'shortName': 'Nh', 'productionCost': '16', 'unlockUnit': [3003]}));
 
-function buildTutorialResearchTree() {
-	var researchInventory = new Array();
-	researchInventory.push(new SkyFlyerResearch(0, "startup", "", 0, [8001, 8002, 8008], [1001, 2001, 3001, 4001]));
-	researchInventory.push(new SkyFlyerResearch(8001, "Jet Engines", "Jt", 16, [8003, 8005], null));
-	researchInventory.push(new SkyFlyerResearch(8002, "Dogfighting", "Dg", 16, [8007], null));
-	researchInventory.push(new SkyFlyerResearch(8003, "Flagon Factory",	"Fl", 16, null, [3002]));
-	researchInventory.push(new SkyFlyerResearch(8004, "Phantom Factory", "Ph", 16, null, [1002]));
-	researchInventory.push(new SkyFlyerResearch(8005, "Modern Airframes", "M",  16, [8004, 8006], null));
+	researchProjects.add(new SkyFlyerResearchModel({'idNumber': '8016', 'researchName': 'Long Range Missiles', 'shortName': 'Bm', 'productionCost': '16', 'unlockUnit': [4003]}));
+	researchProjects.add(new SkyFlyerResearchModel({'idNumber': '8017', 'researchName': 'Lancer Factory', 'shortName': 'Ln', 'productionCost': '16', 'unlockUnit': [2003]}));
+	researchProjects.add(new SkyFlyerResearchModel({'idNumber': '8018', 'researchName': 'Unmanned Combat', 'shortName': 'Un', 'productionCost': '16', 'unlockResearch': [8021, 8023]}));
+	researchProjects.add(new SkyFlyerResearchModel({'idNumber': '8019', 'researchName': 'Advanced Stealth', 'shortName': 'AS', 'productionCost': '16', 'unlockResearch': [8020, 8026]}));
+	researchProjects.add(new SkyFlyerResearchModel({'idNumber': '8020', 'researchName': 'Stealth Bomber Plant', 'shortName': 'Sb', 'productionCost': '16', 'unlockUnit': [2004]}));
 
-	researchInventory.push(new SkyFlyerResearch(8006, "Stratofortress Plant", "St", 16, null, [2002]));
-	researchInventory.push(new SkyFlyerResearch(8007, "Air Superiority", "A", 16, [8012], null));
-	researchInventory.push(new SkyFlyerResearch(8008, "Night Bombing", "Nb", 16, [8009], null));
-	researchInventory.push(new SkyFlyerResearch(8009, "Modern Rocketry", "Mr", 16, [8010, 8013], null));
-	researchInventory.push(new SkyFlyerResearch(8010, "Missile Silo", "Ms", 16, null, [4002]));
+	researchProjects.add(new SkyFlyerResearchModel({'idNumber': '8022', 'researchName': 'National Laboratories', 'shortName': 'Nl', 'productionCost': '16', 'unlockResearch': [8024]}));
+	researchProjects.add(new SkyFlyerResearchModel({'idNumber': '8023', 'researchName': 'Drone Base', 'shortName': 'Dr', 'productionCost': '16', 'unlockUnit': [4004]}));
+	researchProjects.add(new SkyFlyerResearchModel({'idNumber': '8024', 'researchName': 'Joint Strike Program', 'shortName': 'Js', 'productionCost': '16', 'unlockResearch': [8025]}));
+	researchProjects.add(new SkyFlyerResearchModel({'idNumber': '8025', 'researchName': 'Lightning Factory', 'shortName': 'Lt', 'productionCost': '16', 'unlockUnit': [1004]}));
+	researchProjects.add(new SkyFlyerResearchModel({'idNumber': '8026', 'researchName': 'Raptor Assembly Plant', 'shortName': 'Rp', 'productionCost': '16', 'unlockUnit': [3004]}));
 
-	researchInventory.push(new SkyFlyerResearch(8011, "Stealth", "S", 16, [8015, 8019], null));
-	researchInventory.push(new SkyFlyerResearch(8012, "Bomber Program", "Bp", 16, [8017, 8022], null));
-	researchInventory.push(new SkyFlyerResearch(8013, "Space Center", "Sc", 16, [8016], null));
-	researchInventory.push(new SkyFlyerResearch(8014, "Eagle Factory", "Ef", 16, null, [1003]));
-	researchInventory.push(new SkyFlyerResearch(8015, "Nighthawk Plant", "Nh", 16, null, [3003]));
-
-	researchInventory.push(new SkyFlyerResearch(8016, "Long Range Missiles", "Bm", 16, null, [4003]));
-	researchInventory.push(new SkyFlyerResearch(8017, "Lancer Factory", "Ln", 16, null, [2003]));
-	researchInventory.push(new SkyFlyerResearch(8018, "Unmanned Combat", "Ef", 16, [8021, 8023], null));
-	researchInventory.push(new SkyFlyerResearch(8019, "Advanced Stealth", "As", 16, [8020, 8026], null));
-	researchInventory.push(new SkyFlyerResearch(8020, "Stealth Bomber Plant", "Sb", 16, null, [2004]));
-
-	researchInventory.push(new SkyFlyerResearch(8022, "National Laboratories", "Nl", 16, [8024], null));
-	researchInventory.push(new SkyFlyerResearch(8023, "Drone Base", "Dr", 16, null, [4004]));
-	researchInventory.push(new SkyFlyerResearch(8024, "Joint Strike Program", "Js", 16, [8025], null));
-	researchInventory.push(new SkyFlyerResearch(8025, "Lightning Factory", "Lt", 16, null, [1004]));
-	researchInventory.push(new SkyFlyerResearch(8026, "Raptor Assembly Plant", "Rp", 16, null, [3004]));
-	return researchInventory;
+	return researchProjects;
 }
