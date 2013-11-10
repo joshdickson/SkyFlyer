@@ -19,6 +19,29 @@ var SkyFlyerGameModel = Backbone.Model.extend({
 				gameConfig.set('playerCash', gameConfig.get('playerCash') - matchingUnit.get('productionCost'));
 			});
 		});
+	},
+	endTurn: function(attackForce) {
+		var gameConfig = this.get('gameState').get('gameConfig');
+
+		if(attackForce) {
+			console.log("Turn ended with attack");
+		} 
+
+		// update the opponent strength pending the attack
+		var turn = gameConfig.get('turnNumber');
+		var oppDefenceScore = this.get('gameFunctions').getOpponentDefense(turn);
+		gameConfig.set('opponentStrength', gameConfig.get('opponentStrength') + oppDefenceScore);
+
+		// check that there is no winner, if so, end the game
+		if(gameConfig.get('opponentStrength') > 100) {
+			// the game is over, the opponent has won :(
+			return 1;
+		}
+		
+		// increment the turn counter
+		gameConfig.set('turnNumber', gameConfig.get('turnNumber') + 1);
+		
+		
 	}
 });
 
@@ -45,7 +68,7 @@ var SkyFlyerGameStateModel = Backbone.Model.extend({
 				// add every unit to the available units list that this research unlocks
 				_.each(research.get('unlockUnit'), function(researchID) {
 					availableUnits.push(researchID);
-					// we are adding a unit id to the list, so we have to remove every now obsolete unit
+					// remove every now obsolete unit
 					_.each(gameUnitInventory.where({idNumber: (researchID).toString()}), function(gameUnitID) {
 						_.each(gameUnitID.get('makesObsolete'), function(obsoleteUnitID) {
 							availableUnits = _.without(availableUnits, obsoleteUnitID);
@@ -134,8 +157,6 @@ var SkyFlyerGamePieceModel = Backbone.Model.extend({
     }
 });
 
-
-
 /**
  * The game configuration that is used as a parameter object to seed a SkyFlyerGameState
  */
@@ -145,7 +166,7 @@ var SkyFlyerGameConfigModel = Backbone.Model.extend({
 	    "turnNumber": 0,
 	    "playerCash": 0,
 	    "playerPoints": 0,
-	    "opponentStrength": 100,
+	    "opponentStrength": 50,
 	    "gameUnitInventory": null,
 	    "gameResearchInventory": null,
 	    "playerUnitInventory": null,
