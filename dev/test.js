@@ -1,9 +1,13 @@
 
+// test.js
+// Joshua Dickson
+// unit tests for the SkyFlyer game
+
 module("Game Initialization");
 
 test("Constants initialize", function() {
 	
-	var newGameConfiguration = new SkyFlyerGameConfigModel({
+	var newGameConfiguration = new GameConfiguration({
 	    turn: 5,
 	    playerCash: 400,
 	    playerPoints: 800,
@@ -19,19 +23,19 @@ test("Constants initialize", function() {
 
 test("Unit inventory initializes", function() {
 	// set up the game configuration
-	var inventoryItems = new InventoryModelItems();
-	inventoryItems.add(new InventoryModel({'idNumber': 1001, 'count': 10}));
-	inventoryItems.add(new InventoryModel({'idNumber': 2001, 'count': 6}));
-	inventoryItems.add(new InventoryModel({'idNumber': 3001, 'count': 2}));
-	inventoryItems.add(new InventoryModel({'idNumber': 4001, 'count': 0}));
+	var inventory = new InventoryCollection();
+	inventory.add(new Inventory({'idNumber': 1001, 'count': 10}));
+	inventory.add(new Inventory({'idNumber': 2001, 'count': 6}));
+	inventory.add(new Inventory({'idNumber': 3001, 'count': 2}));
+	inventory.add(new Inventory({'idNumber': 4001, 'count': 0}));
 
-	var gameConfiguration = new SkyFlyerGameConfigModel({
+	var gameConfiguration = new GameConfiguration({
 		'gameUnitInventory': buildTutorialGameUnitModelInventory(),
 		'gameResearchInventory': buildTutorialResearchModelTree(),
-		'unitInventory': inventoryItems
+		'unitInventory': inventory
 	});
 
-	var gameState = new SkyFlyerGameStateModel({'gameConfig': gameConfiguration});
+	var gameState = new GameState({'gameConfig': gameConfiguration});
 
 	// check the player's units
 	equal(gameState.get('gameConfig').get('unitInventory').length, 4);
@@ -39,11 +43,11 @@ test("Unit inventory initializes", function() {
 
 test("Check research project queue", function()  {
 
-	var gameConfiguration = new SkyFlyerGameConfigModel({
-		'buildQueueItem': new InventoryModel({'idNumber': 8001, 'count': 5})
+	var gameConfiguration = new GameConfiguration({
+		'buildQueueItem': new Inventory({'idNumber': 8001, 'count': 5})
 	});
 
-	var gameState = new SkyFlyerGameStateModel({'gameConfig': gameConfiguration});
+	var gameState = new GameState({'gameConfig': gameConfiguration});
 
 	equal(gameState.get('gameConfig').get('buildQueueItem').get('idNumber'), 8001, "working on 8001");
 	equal(gameState.get('gameConfig').get('buildQueueItem').get('count'), 5, "5 turns to complete");
@@ -52,7 +56,7 @@ test("Check research project queue", function()  {
 
 test("Check units available to build", function() {
 
-	var gameState = new SkyFlyerGameStateModel({'gameConfig': new SkyFlyerGameConfigModel({
+	var gameState = new GameState({'gameConfig': new GameConfiguration({
 		'gameUnitInventory': buildTutorialGameUnitModelInventory(),
 		'gameResearchInventory': buildTutorialResearchModelTree()
 	})});
@@ -67,7 +71,7 @@ test("Check units available to build", function() {
 });
 
 test("Check research available to conduct", function() {
-	var gameState = new SkyFlyerGameStateModel({'gameConfig': new SkyFlyerGameConfigModel({
+	var gameState = new GameState({'gameConfig': new GameConfiguration({
 		'gameUnitInventory': buildTutorialGameUnitModelInventory(),
 		'gameResearchInventory': buildTutorialResearchModelTree()
 	})});
@@ -84,15 +88,15 @@ test("Check research available to conduct", function() {
 test("Check complex game state formation research available", function() {
 
 	// build the research inventory
-	var researchInventory = new InventoryModelItems();
-	researchInventory.add(new InventoryModel({'idNumber': 0}));
-	researchInventory.add(new InventoryModel({'idNumber': 8001}));
-	researchInventory.add(new InventoryModel({'idNumber': 8002}));
-	researchInventory.add(new InventoryModel({'idNumber': 8008}));
-	researchInventory.add(new InventoryModel({'idNumber': 8005}));
+	var researchInventory = new InventoryCollection();
+	researchInventory.add(new Inventory({'idNumber': 0}));
+	researchInventory.add(new Inventory({'idNumber': 8001}));
+	researchInventory.add(new Inventory({'idNumber': 8002}));
+	researchInventory.add(new Inventory({'idNumber': 8008}));
+	researchInventory.add(new Inventory({'idNumber': 8005}));
 
 	// configure the game
-	var gameState = new SkyFlyerGameStateModel({'gameConfig': new SkyFlyerGameConfigModel({
+	var gameState = new GameState({'gameConfig': new GameConfiguration({
 		'gameUnitInventory': buildTutorialGameUnitModelInventory(),
 		'gameResearchInventory': buildTutorialResearchModelTree(),
 		'researchInventory': researchInventory
@@ -111,18 +115,18 @@ test("Check complex game state formation research available", function() {
 test("Check complex game state formation units available to build", function() {
 
 	// build the research inventory
-	var researchInventory = new InventoryModelItems();
-	researchInventory.add(new InventoryModel({'idNumber': 0}));
-	researchInventory.add(new InventoryModel({'idNumber': 8001}));
-	researchInventory.add(new InventoryModel({'idNumber': 8002}));
-	researchInventory.add(new InventoryModel({'idNumber': 8008}));
-	researchInventory.add(new InventoryModel({'idNumber': 8005}));
-	researchInventory.add(new InventoryModel({'idNumber': 8003}));
-	researchInventory.add(new InventoryModel({'idNumber': 8004}));
-	researchInventory.add(new InventoryModel({'idNumber': 8006}));
+	var researchInventory = new InventoryCollection();
+	researchInventory.add(new Inventory({'idNumber': 0}));
+	researchInventory.add(new Inventory({'idNumber': 8001}));
+	researchInventory.add(new Inventory({'idNumber': 8002}));
+	researchInventory.add(new Inventory({'idNumber': 8008}));
+	researchInventory.add(new Inventory({'idNumber': 8005}));
+	researchInventory.add(new Inventory({'idNumber': 8003}));
+	researchInventory.add(new Inventory({'idNumber': 8004}));
+	researchInventory.add(new Inventory({'idNumber': 8006}));
 
 	// configure the game
-	var gameState = new SkyFlyerGameStateModel({'gameConfig': new SkyFlyerGameConfigModel({
+	var gameState = new GameState({'gameConfig': new GameConfiguration({
 		'gameUnitInventory': buildTutorialGameUnitModelInventory(),
 		'gameResearchInventory': buildTutorialResearchModelTree(),
 		'researchInventory': researchInventory
@@ -190,6 +194,15 @@ test("Test SkyFlyerFunctions as wrapper", function() {
 
 });
 
+test('Semi-Random Number Generator Test', function() {
+	var randomizer = new TestRandomNumberGenerator();
+	equal(randomizer.getNextRandomValue(), 77);
+	equal(randomizer.getNextRandomValue(), 54);
+	equal(randomizer.getNextRandomValue(), 31);
+	equal(randomizer.getNextRandomValue(), 8);
+
+})
+
 module("Starting A Game");
 
 test("Create a simple SkyFlyerGame", function() {
@@ -208,31 +221,32 @@ test("Check buy single unit", function() {
 	var game = new SkyFlyerGameModel({'gameState': buildSimpleGame()});
 
 	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').length, 4);
-	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(0).get('idNumber'), 1001);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(0).get('unit').get('idNumber'), 1001);
 	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(0).get('count'), 2);
-	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(1).get('idNumber'), 2001);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(1).get('unit').get('idNumber'), 2001);
 	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(1).get('count'), 0);
-	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(2).get('idNumber'), 3001);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(2).get('unit').get('idNumber'), 3001);
 	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(2).get('count'), 10);
-	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(3).get('idNumber'), 4001);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(3).get('unit').get('idNumber'), 4001);
 	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(3).get('count'), 5);
 
 	// record how much cash the player has before the purchase
 	var previousCash = game.get('gameState').get('gameConfig').get('playerCash');
 
 	// now, buy a Liberator at a cost of 100 units
-	game.buy(2001);
+	var gameUnits = game.get('gameState').get('gameConfig').get('gameUnitInventory');
+	game.buy(gameUnits.getByID(2001));
 
 	equal(game.get('gameState').get('gameConfig').get('playerCash') + 100, previousCash, "show that amount was decremented for purchase")
 
 	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').length, 4);
-	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(0).get('idNumber'), 1001);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(0).get('unit').get('idNumber'), 1001);
 	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(0).get('count'), 2);
-	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(1).get('idNumber'), 2001);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(1).get('unit').get('idNumber'), 2001);
 	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(1).get('count'), 1);
-	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(2).get('idNumber'), 3001);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(2).get('unit').get('idNumber'), 3001);
 	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(2).get('count'), 10);
-	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(3).get('idNumber'), 4001);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(3).get('unit').get('idNumber'), 4001);
 	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(3).get('count'), 5);
 })
 
@@ -246,29 +260,31 @@ test("Check buy several units", function() {
 
 	// check the player's inventory
 	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').length, 4);
-	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(0).get('idNumber'), 4001);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(0).get('unit').get('idNumber'), 4001);
 	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(0).get('count'), 8);
-	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(1).get('idNumber'), 3002);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(1).get('unit').get('idNumber'), 3002);
 	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(1).get('count'), 3);
-	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(2).get('idNumber'), 2002);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(2).get('unit').get('idNumber'), 2002);
 	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(2).get('count'), 2);
-	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(3).get('idNumber'), 1002);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(3).get('unit').get('idNumber'), 1002);
 	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(3).get('count'), 1);
 
+	var gameUnits = game.get('gameState').get('gameConfig').get('gameUnitInventory');
+
 	// buy three units
-	game.buy(2002);
-	game.buy(4001);
-	game.buy(4001);
+	game.buy(gameUnits.getByID(2002));
+	game.buy(gameUnits.getByID(4001));
+	game.buy(gameUnits.getByID(4001));
 
 	// recheck the player's inventory with additions
 	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').length, 4);
-	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(0).get('idNumber'), 4001);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(0).get('unit').get('idNumber'), 4001);
 	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(0).get('count'), 10);
-	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(1).get('idNumber'), 3002);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(1).get('unit').get('idNumber'), 3002);
 	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(1).get('count'), 3);
-	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(2).get('idNumber'), 2002);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(2).get('unit').get('idNumber'), 2002);
 	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(2).get('count'), 3);
-	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(3).get('idNumber'), 1002);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(3).get('unit').get('idNumber'), 1002);
 	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(3).get('count'), 1);
 
 	// check that the cash was spent
@@ -276,7 +292,25 @@ test("Check buy several units", function() {
 
 });
 
-module('Test game plays');
+module('Simple Game Plays');
+
+test('Turn increments at end of turn', function() {
+
+	// set up game functions
+	var gameFunctions = new SkyFlyerFunctions(new ProductionWrapper(new LinearProduction(2, 4)), 
+		new ProductionWrapper(new LinearProduction(4, 2)));
+
+	// set up the game
+	var game = new SkyFlyerGameModel({'gameState': buildComplexGame(), 'gameFunctions': gameFunctions});
+
+	// turn number before any turns are taken, set from complex game
+	equal(game.get('gameState').get('gameConfig').get('turnNumber'), 3);
+	game.endTurn();
+	equal(game.get('gameState').get('gameConfig').get('turnNumber'), 4);
+	game.endTurn();
+	equal(game.get('gameState').get('gameConfig').get('turnNumber'), 5);
+
+});
 
 test('Player does not make an attack, loses game', function() {
 
@@ -304,6 +338,150 @@ test('Player does not make an attack, loses game', function() {
 
 });
 
+test('Player purchases several items but never makes move, loses game', function() {
+	// set up game functions
+	var gameFunctions = new SkyFlyerFunctions(new ProductionWrapper(new LinearProduction(2, 4)), 
+		new ProductionWrapper(new LinearProduction(4, 2)));
+
+	// set up the game
+	var game = new SkyFlyerGameModel({'gameState': buildComplexGame(), 'gameFunctions': gameFunctions});
+
+	// get the opponent's strength
+	var oppStrength = game.get('gameState').get('gameConfig').get('opponentStrength');
+	
+	// check starting strength
+	equal(game.get('gameState').get('gameConfig').get('opponentStrength'), 43);
+	game.endTurn();
+
+	// get the game units for easier buying
+	var gameUnits = game.get('gameState').get('gameConfig').get('gameUnitInventory');
+
+	game.buy(gameUnits.getByID(4001)); // buy something
+
+	equal(game.get('gameState').get('gameConfig').get('opponentStrength'), 43 + 14);
+	game.endTurn();
+	equal(game.get('gameState').get('gameConfig').get('opponentStrength'), 43 + 14 + 18);
+	game.endTurn();
+
+	game.buy(gameUnits.getByID(4001)); // buy something
+
+	equal(game.get('gameState').get('gameConfig').get('opponentStrength'), 43 + 14 + 18 + 22);
+	
+	// the opponent now wins the game
+	equal(game.endTurn(), 1);
+
+});
+
+test('Player makes a one-unit attack attempt', function() {
+	// set up game functions
+	var gameFunctions = new SkyFlyerFunctions(new ProductionWrapper(new LinearProduction(2, 4)), 
+		new ProductionWrapper(new LinearProduction(4, 2)), new TestRandomNumberGenerator());
+
+	// set up the game
+	var game = new SkyFlyerGameModel({'gameState': buildComplexGame(), 'gameFunctions': gameFunctions});
+
+	// first, we are artificially going to give unit 2002 very little chance to defend itself by ensuring it's detected
+	game.get('gameState').get('gameConfig').get('gameUnitInventory').getByID(2002).set('defense', 1);
+
+	// set up the attack wave
+	var attackWave = new InventoryCollection();
+	var attackingUnit = game.get('gameState').get('gameConfig').get('gameUnitInventory').getByID(2002);
+	attackWave.add(new Inventory({'unit': attackingUnit, 'count': 1}));
+	game.get('gameState').get('gameConfig').get('playerUnitInventory').findWhere({ unit: attackingUnit }).set('count', 1);
+	game.get('gameState').get('gameConfig').set('attackForce', attackWave);
+
+	// this is a weak attack, the player will lose this unit
+	game.endTurn();
+
+	// check the player's inventory
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(2).get('count'), 1);
+
+
+});
+
+test('Player makes attack attempt with two units', function() {
+	// set up game functions
+	var gameFunctions = new SkyFlyerFunctions(new ProductionWrapper(new LinearProduction(2, 4)), 
+		new ProductionWrapper(new LinearProduction(1, 1)), new TestRandomNumberGenerator());
+
+	// set up the game
+	var game = new SkyFlyerGameModel({'gameState': buildComplexGame(), 'gameFunctions': gameFunctions});
+
+	// strength of 43 before attack
+	equal(game.get('gameState').get('gameConfig').get('opponentStrength'), 43);
+
+	// set up the attack wave...
+	var gameUnits = game.get('gameState').get('gameConfig').get('gameUnitInventory');
+	
+	var attackWave = new InventoryCollection();
+	attackWave.add(new Inventory({'unit': gameUnits.getByID(2002), 'count': 1}));
+	game.get('gameState').get('gameConfig').get('playerUnitInventory').findWhere({ unit: gameUnits.getByID(2002) }).set('count', 1);
+	attackWave.add(new Inventory({'unit': gameUnits.getByID(3002), 'count': 1}));
+	game.get('gameState').get('gameConfig').get('playerUnitInventory').findWhere({ unit: gameUnits.getByID(3002) }).set('count', 2);
+	game.get('gameState').get('gameConfig').set('attackForce', attackWave);
+
+	game.endTurn();
+
+	// check the updated opponent score...
+	equal(game.get('gameState').get('gameConfig').get('opponentStrength'), 43 + 1.4);
+
+	// check the updated unit counts
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(1).get('unit').get('idNumber'), 3002);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(1).get('count'), 3);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(2).get('unit').get('idNumber'), 2002);
+	equal(game.get('gameState').get('gameConfig').get('playerUnitInventory').at(2).get('count'), 1);
+
+});
+
+test('Player makes large attack and wins', function() {
+	// set up game functions
+	var gameFunctions = new SkyFlyerFunctions(new ProductionWrapper(new LinearProduction(2, 4)), 
+		new ProductionWrapper(new LinearProduction(1, 1)), new TestRandomNumberGenerator());
+
+	// set up the game
+	var game = new SkyFlyerGameModel({'gameState': buildComplexGame(), 'gameFunctions': gameFunctions});
+
+	// strength of 43 before attack
+	equal(game.get('gameState').get('gameConfig').get('opponentStrength'), 43);
+
+	// set up the attack wave...
+	var gameUnits = game.get('gameState').get('gameConfig').get('gameUnitInventory');
+	var attackWave = new InventoryCollection();
+	attackWave.add(new Inventory({'unit': gameUnits.getByID(4001), 'count': 7}));
+	attackWave.add(new Inventory({'unit': gameUnits.getByID(2002), 'count': 2}));
+	attackWave.add(new Inventory({'unit': gameUnits.getByID(3002), 'count': 3}));
+	game.get('gameState').get('gameConfig').set('attackForce', attackWave);
+
+	equal(game.endTurn(), 0);
+
+});
+
+module('Boundary cases');
+
+test('Cannot try to make moves once the game is over', function() {
+	// set up game functions
+	var gameFunctions = new SkyFlyerFunctions(new ProductionWrapper(new LinearProduction(2, 4)), 
+		new ProductionWrapper(new LinearProduction(1, 1)), new TestRandomNumberGenerator());
+
+	// set up the game
+	var game = new SkyFlyerGameModel({'gameState': buildComplexGame(), 'gameFunctions': gameFunctions});
+
+	// set up the attack wave...
+	var attackWave = new InventoryCollection();
+	var gameUnits = game.get('gameState').get('gameConfig').get('gameUnitInventory');
+	attackWave.add(new Inventory({'unit': gameUnits.getByID(4001), 'count': 7}));
+	attackWave.add(new Inventory({'unit': gameUnits.getByID(2002), 'count': 2}));
+	attackWave.add(new Inventory({'unit': gameUnits.getByID(3002), 'count': 3}));
+	game.get('gameState').get('gameConfig').set('attackForce', attackWave);
+
+	equal(game.endTurn(), 0);
+
+	// throw error when trying to take a turn with the game already over
+	raises(function () {
+        game.endTurn();
+    }, Error);
+
+});
 
 
 
@@ -327,6 +505,4 @@ test('Player does not make an attack, loses game', function() {
 
 
 
-
-
-
+// 

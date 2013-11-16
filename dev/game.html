@@ -1,20 +1,73 @@
 <!DOCTYPE html>
+<html lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>Skyflyer</title>
-	<link rel="stylesheet" href="qunit.css">
-	<script src="units.js"></script>
-	<script src="functions.js"></script>
+	<title>SkyFlyer Application</title>
+	<link rel="stylesheet" href="reset.css">
+	<link rel="stylesheet" href="skyflyer.css">
+	
 </head>
 <body>
-	<div id='homescreen-data'>
-		<div id='top-controls'>
-		<p id='back'>Back</p>
-		<p id='opponent-score'>80</p>
-		<p id='menu'>Menu</p>
+	
+	<!-- the game container -->
+	<div id='game-container'>
+		<!-- page elements -->
+		<div id='opponent-score'></div>
+		<div id='game-statistics'></div>
+		
+		<!-- game-controls -->
+		<div id='game-controls'>
+			<img class='game-control-icon' src='attack-build-icon.png' alt='attack icon' />
+			<img class='game-control-icon' src='queue-icon.png' alt='queue icon' />
+			<img class='game-control-icon' src='marketplace-icon.png' alt='marketplace icon' />
+			<img id='end-turn-icon' class='game-control-icon' src='end-turn-icon.png' alt='end turn icon' />
+		</div>
+	</div> <!-- end game-container -->
 
+	<!-- container for available attacking units -->
+	<div id='available-attack-units-container'>
+		<ul id='available-attack-units'></ul>
 	</div>
+
+	<!-- container for attacking units in attack wave -->
+	<div id='attack-units-container'>
+		<ul id='attack-units'></ul>
+	</div>
+
+
+	<!-- templates -->
+	<script type='text/template' id='game-info'>
+		<div>
+			<h2>Player Points: <%= playerPoints %></h2>
+			<p>Rank: <%= playerRank %></p>
+			<h4>Cash: <%= playerCash %></h4>
+			<h4>Turn: <%= turnNumber %></h4>
+		</div>
+	</script>
+
+	<script type='text/template' id='opponent-score-display'>
+		<div>
+			<h4>Opponent Score: <%= opponentStrength %></h4>
+		</div>
+	</script>
+
+	<script type='text/template' id='attack-unit-template'>
+		<p><%= unit.get('pieceName') %></p>
+		<p><%= count %></p>
+	</script>
+
+
+	<!-- load scripts -->
+	<script src="jquery.js"></script>
+	<script src="underscore.js"></script>
+	<script src="backbone.js"></script>
 	
-	
+	<script src="functions.js"></script>
+	<script src="testfixtures.js"></script>
+	<script src="units.js"></script>
+	<script src='views.js'></script>
+
+
+
 </body>
 </html>
