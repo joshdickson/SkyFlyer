@@ -1,0 +1,32 @@
+/************ Major Game Areas ************/
+div#game-container {
+	height: 568px;
+	width: 320px;
+	background-color: #d4d4d4;
+	background-image: url('background.png');
+}
+
+div#available-attack-units-container {
+	width: 320px;
+	height: 90px;
+	background-color: #c4c7d0;
+}
+
+div#attack-units-container {
+	width: 320px;
+	height: 90px;
+	background-color: #c4d0c8;
+}
+
+/************* Game Controls **************/
+img.game-control-icon {
+	height: 74px;
+}
+
+.inline-block {
+	display: inline-block;
+}
+
+h1, h2, h3, h4, h5, h6, p {
+	color: white;
+}

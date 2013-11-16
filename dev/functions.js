@@ -3,9 +3,10 @@
  * A wrapper object for keeping track of myriad functions in use by the program, which
  * will change depending on the difficulty of the game generated
  */
-function SkyFlyerFunctions(playerProduction, opponentDefense) {
+function SkyFlyerFunctions(playerProduction, opponentDefense, randomNumberGenerator) {
 	var playerProduction = playerProduction;
 	var opponentDefense = opponentDefense;
+	var randomNumberGenerator = randomNumberGenerator;
 
 	this.getPlayerProduction = function(turn) {
 		return playerProduction.buildProduction(turn);
@@ -15,7 +16,29 @@ function SkyFlyerFunctions(playerProduction, opponentDefense) {
 		return opponentDefense.buildProduction(turn);
 	}
 
+	this.getRandomNumber = function() {
+		return randomNumberGenerator.getNextRandomValue();
+	}
+
 };
+
+
+/**
+ * A smi-random number generator for use with generating random values used on SkyFlyer tests
+ */
+function TestRandomNumberGenerator() {
+	var currentValue = 0;
+
+	this.getNextRandomValue = function() {
+		
+		// offset by 0.77, subtract 1 if > 1
+		currentValue += 77;
+		if(currentValue > 100) {
+			currentValue = currentValue - 100;
+		}
+		return currentValue;
+	}
+}
 
 /**
  * Create a ProductionWrapper given a variety of Production. A ProductionWrapper
