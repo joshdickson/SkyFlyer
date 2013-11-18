@@ -85,10 +85,10 @@ var GameView = Backbone.View.extend({
 	
 	initialize: function() {
 
-		GameModel.get('gameState').get('gameConfig').set('playerRank', GameModel.get('player').get('rank'));
+		GameModel.get('gameState').set('playerRank', GameModel.get('player').get('rank'));
 
-		this.listenTo(GameModel.get('gameState').get('gameConfig'), 'change', this.render);
-		this.listenTo(GameModel.get('gameState').get('gameConfig').get('playerUnitInventory'), 'change', this.render);
+		this.listenTo(GameModel.get('gameState'), 'change', this.render);
+		this.listenTo(GameModel.get('gameState').get('playerUnitInventory'), 'change', this.render);
 
 		this.render();
 
@@ -96,10 +96,10 @@ var GameView = Backbone.View.extend({
 
 	render: function() {
 		// render the game statistics
-		this.$el.html(this.template(GameModel.get('gameState').get('gameConfig').toJSON()));
+		this.$el.html(this.template(GameModel.get('gameState').toJSON()));
 
 		$('#available-attack-units').empty();
-		GameModel.get('gameState').get('gameConfig').get('playerUnitInventory').each(function(inventoryItem) {
+		GameModel.get('gameState').get('playerUnitInventory').each(function(inventoryItem) {
 			var view = new InventoryUnitView({ model: inventoryItem });
 			this.$('#available-attack-units').append(view.render().el);
 		});
@@ -112,13 +112,13 @@ var GameView = Backbone.View.extend({
 var AttackView = Backbone.View.extend({
   				
 	initialize: function() {
-		this.listenTo(GameModel.get('gameState').get('gameConfig').get('attackForce'), 'change reset add remove', this.render);
+		this.listenTo(GameModel.get('gameState').get('attackForce'), 'change reset add remove', this.render);
 		this.render();
 	},
 
 	render: function() {
 		$('#attack-units').empty();
-		GameModel.get('gameState').get('gameConfig').get('attackForce').each(function(inventoryItem) {
+		GameModel.get('gameState').get('attackForce').each(function(inventoryItem) {
 			console.log('rendering attack unit');
 			var view = new AttackUnitView({ model: inventoryItem });
 			this.$('#attack-units').append(view.render().el);
@@ -138,7 +138,7 @@ var OpponentView = Backbone.View.extend({
 	
 	initialize: function() {
 
-		this.listenTo(GameModel.get('gameState').get('gameConfig'), 'change', this.render);
+		this.listenTo(GameModel.get('gameState'), 'change', this.render);
 
 		// render right away
 		this.render();
@@ -146,7 +146,7 @@ var OpponentView = Backbone.View.extend({
 	},
 
 	render: function() {
-		this.$el.html(this.template(GameModel.get('gameState').get('gameConfig').toJSON()));
+		this.$el.html(this.template(GameModel.get('gameState').toJSON()));
 		return this;
 	},
 });

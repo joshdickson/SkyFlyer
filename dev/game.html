@@ -8,32 +8,36 @@
 	
 </head>
 <body>
-	
-	<!-- the game container -->
-	<div id='game-container'>
-		<!-- page elements -->
-		<div id='opponent-score'></div>
-		<div id='game-statistics'></div>
-		
-		<!-- game-controls -->
-		<div id='game-controls'>
-			<img class='game-control-icon' src='img/attack-build-icon.png' alt='attack icon' />
-			<img class='game-control-icon' src='img/queue-icon.png' alt='queue icon' />
-			<img class='game-control-icon' src='img/marketplace-icon.png' alt='marketplace icon' />
-			<img id='end-turn-icon' class='game-control-icon' src='img/end-turn-icon.png' alt='end turn icon' />
-		</div>
-	</div> <!-- end game-container -->
 
-	<!-- container for available attacking units -->
-	<div id='available-attack-units-container'>
-		<ul id='available-attack-units'></ul>
+	<div id='home-page' class='draggable'>
+	
+		<!-- the game container -->
+		<div id='game-container'>
+
+			<!-- page elements -->
+			<div id='opponent-score'></div>
+			<div id='game-statistics'></div>
+			
+			<!-- game-controls -->
+			<div id='game-controls'>
+				<img class='game-control-icon' src='img/attack-build-icon.png' alt='attack icon' />
+				<img class='game-control-icon' src='img/queue-icon.png' alt='queue icon' />
+				<img class='game-control-icon' src='img/marketplace-icon.png' alt='marketplace icon' />
+				<img id='end-turn-icon' class='game-control-icon' src='img/end-turn-icon.png' alt='end turn icon' />
+			</div>
+		</div> <!-- end game-container -->
+
+		<!-- container for available attacking units -->
+		<div id='available-attack-units-container'>
+			<ul id='available-attack-units'></ul>
+		</div>
+
 	</div>
 
 	<!-- container for attacking units in attack wave -->
 	<div id='attack-units-container'>
 		<ul id='attack-units'></ul>
 	</div>
-
 
 	<!-- templates -->
 	<script type='text/template' id='game-info'>
@@ -59,13 +63,57 @@
 
 	<!-- load scripts -->
 	<script src="js/lib/jquery.js"></script>
+	<script src="js/lib/jqueryui.js"></script>
 	<script src="js/lib/underscore.js"></script>
 	<script src="js/lib/backbone.js"></script>
 	
 	<script src="js/functions.js"></script>
 	<script src="js/testfixtures.js"></script>
-	<script src="js/units.js"></script>
+	<script src="js/game.js"></script>
 	<script src='js/views.js'></script>
+
+	<script>
+		$(function() {
+    		$(".draggable").draggable({ 
+    			axis: "y",
+      			containment: [0, -80, 0, 0],
+      			stop: function() {
+      				var topOffset = $(this).offset().top;
+      				if(topOffset < -15) easeToFinalLocation($(this), topOffset, -80);
+      				else easeToFinalLocation($(this), topOffset, 0);
+      			},
+      		});
+  		});
+
+  		function getTransient(x) {
+  			return 1 - (Math.pow(Math.E, -6 * x) * Math.cos(16 * x));
+  		};
+
+  		function easeToFinalLocation(obj, currentPosition, finalPosition) {
+
+  			var travelDistance = Math.abs(finalPosition - currentPosition);
+
+  			var numberOfIter = 40;
+  			var timeoutLength = 30;
+
+  			for(var i = 0, j = 0; i < travelDistance; i += travelDistance/numberOfIter, j++ ) {
+
+  				// var transitiveEffects = (getTransient((j + 1) / numberOfIter) * travelDistance);
+  				// console.log(transitiveEffects);
+
+  				if(currentPosition < finalPosition) 
+  					setTimeout(function(avar) { obj.offset({ top: avar }) }, timeoutLength*j, currentPosition + (getTransient((j + 1) / numberOfIter) * travelDistance));
+  				else 
+  					setTimeout(function(avar) { obj.offset({ top: avar }) }, timeoutLength*j, currentPosition - (getTransient((j + 1) / numberOfIter) * travelDistance));
+
+  			}
+
+
+  			// finally, set manually to the exact amount
+  			setTimeout(function(loc) { obj.offset({top: loc})  }, numberOfIter * timeoutLength, finalPosition);
+  			
+  		};
+	</script>
 
 </body>
 </html>
