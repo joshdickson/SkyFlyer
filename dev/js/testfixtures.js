@@ -24,7 +24,7 @@ function buildSimpleGame() {
 	playerUnitInventory.add(new Inventory({'unit': gameUnits.getByID(4001), 'count': 5}));
 
 	// configure the game
-	return new GameState({'gameConfig': new GameConfiguration({
+	return new GameState({
 		'gameUnitInventory': gameUnits,
 		'gameResearchInventory': buildTutorialResearchModelTree(),
 		'playerUnitInventory': playerUnitInventory,
@@ -32,8 +32,7 @@ function buildSimpleGame() {
 		'playerCash': 400,
 		'playerPoints': 800,
 		'opponentStrength': 85,
-		
-	})});
+	});
 }
 
 function buildComplexGame() {
@@ -45,17 +44,18 @@ function buildComplexGame() {
 
 	// build the units for the game
 	var gameUnits = buildTutorialGameUnitModelInventory();
+	var gameResearch = buildTutorialResearchModelTree();
 
 	// build the research inventory
 	var researchInventory = new InventoryCollection();
-	researchInventory.add(new Inventory({'idNumber': 0}));
-	researchInventory.add(new Inventory({'idNumber': 8001}));
-	researchInventory.add(new Inventory({'idNumber': 8002}));
-	researchInventory.add(new Inventory({'idNumber': 8008}));
-	researchInventory.add(new Inventory({'idNumber': 8005}));
-	researchInventory.add(new Inventory({'idNumber': 8003}));
-	researchInventory.add(new Inventory({'idNumber': 8004}));
-	researchInventory.add(new Inventory({'idNumber': 8006}));
+	researchInventory.add(new Inventory({'research': gameResearch.getByID(0)}));
+	researchInventory.add(new Inventory({'research': gameResearch.getByID(8001)}));
+	researchInventory.add(new Inventory({'research': gameResearch.getByID(8002)}));
+	researchInventory.add(new Inventory({'research': gameResearch.getByID(8008)}));
+	researchInventory.add(new Inventory({'research': gameResearch.getByID(8005)}));
+	researchInventory.add(new Inventory({'research': gameResearch.getByID(8003)}));
+	researchInventory.add(new Inventory({'research': gameResearch.getByID(8004)}));
+	researchInventory.add(new Inventory({'research': gameResearch.getByID(8006)}));
 
 	// seed the units that the user starts with...
 	var playerUnitInventory = new InventoryCollection();
@@ -65,16 +65,16 @@ function buildComplexGame() {
 	playerUnitInventory.add(new Inventory({'unit': gameUnits.getByID(1002), 'count': 1}));
 
 	// configure the game
-	return new GameState({'gameConfig': new GameConfiguration({
+	return new GameState({
 		'gameUnitInventory': gameUnits,
-		'gameResearchInventory': buildTutorialResearchModelTree(),
+		'gameResearchInventory': gameResearch,
 		'researchInventory': researchInventory,
 		'playerUnitInventory': playerUnitInventory,
 		'turnNumber': 3,
 		'playerCash': 400,
 		'playerPoints': 800,
 		'opponentStrength': 43
-	})});
+	});
 }
 
 function buildTutorialGame() {
@@ -89,14 +89,14 @@ function buildTutorialGame() {
 	playerUnitInventory.add(new Inventory({'unit': gameUnits.getByID(4001), 'count': 0}));
 
 	// configure the game
-	return new GameState({'gameConfig': new GameConfiguration({
+	return new GameState({
 		'gameUnitInventory': gameUnits,
 		'gameResearchInventory': buildTutorialResearchModelTree(),
 		'playerUnitInventory': playerUnitInventory,
 		'playerCash': 400,
 		'playerPoints': 800,
 		'opponentStrength': 20
-	})});
+	});
 }
 
 function buildTutorialGameUnitModelInventory() {
