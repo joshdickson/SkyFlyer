@@ -93,8 +93,8 @@ function buildTutorialGame() {
 		'gameUnitInventory': gameUnits,
 		'gameResearchInventory': buildTutorialResearchModelTree(),
 		'playerUnitInventory': playerUnitInventory,
-		'playerCash': 400,
-		'playerPoints': 800,
+		'playerCash': 840,
+		'playerPoints': 368,
 		'opponentStrength': 20
 	});
 }

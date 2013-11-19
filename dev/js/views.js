@@ -8,7 +8,7 @@ var gameFunctions = new SkyFlyerFunctions(new ProductionWrapper(new LinearProduc
 
 // the game player for the tutorial
 var gamePlayer = new Player({
-	'rank': 'Sergeant First Class'
+	'rank': 'Lieutennant'
 });
 
 // the game model
@@ -28,7 +28,7 @@ var InventoryUnitView = Backbone.View.extend({
 	template: _.template($('#attack-unit-template').html()),
 
 	events: {
-		'click'		: 'addToAttack'
+		// 'click'		: 'addToAttack'
 	},
 
 	addToAttack: function() {
@@ -151,21 +151,7 @@ var OpponentView = Backbone.View.extend({
 	},
 });
 
-// Ending turn view
-var EndTurnView = Backbone.View.extend({
-	el: $('#end-turn-icon'),
 
-	events: {
-		'click'		: 'endTurn',
-	},
 
-	endTurn: function() {
-		GameModel.endTurn();
-	}
 
-});
 
-var Game = new GameView;
-var Attack = new AttackView;
-var Opponent = new OpponentView;
-var EndTurn = new EndTurnView;
