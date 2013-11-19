@@ -3,6 +3,11 @@
 <head>
 	<meta charset="utf-8">
 	<title>SkyFlyer Application</title>
+
+	<!-- external stylesheets -->
+	<link href='http://fonts.googleapis.com/css?family=Lato:100,300,400' rel='stylesheet' type='text/css'>
+
+	<!-- local stylesheets -->
 	<link rel="stylesheet" href="css/reset.css">
 	<link rel="stylesheet" href="css/skyflyer.css">
 	
@@ -20,7 +25,7 @@
 			
 			<!-- game-controls -->
 			<div id='game-controls'>
-				<img class='game-control-icon' src='img/attack-build-icon.png' alt='attack icon' />
+				<img id='attack-inventory-icon' class='game-control-icon' src='img/attack-build-icon.png' alt='attack icon' />
 				<img class='game-control-icon' src='img/queue-icon.png' alt='queue icon' />
 				<img class='game-control-icon' src='img/marketplace-icon.png' alt='marketplace icon' />
 				<img id='end-turn-icon' class='game-control-icon' src='img/end-turn-icon.png' alt='end turn icon' />
@@ -41,17 +46,30 @@
 
 	<!-- templates -->
 	<script type='text/template' id='game-info'>
-		<div>
-			<h2>Player Points: <%= playerPoints %></h2>
-			<p>Rank: <%= playerRank %></p>
-			<h4>Cash: <%= playerCash %></h4>
-			<h4>Turn: <%= turnNumber %></h4>
+		<div class='fl'>
+			<h2 id='playerPoints'><%=playerPoints%></h2>
+			<p id='player-rank' class='fr'><%=playerRank%></p>
+			
+		</div>
+		<div id='sub-information' class='fr'>
+			<div id='cash-information'>
+				<img class='fl' id='cash-icon' src='img/cash-icon.png' alt='cash icon' />
+				<div class='p-container'>
+					<p class='sm-val'><%=playerCash%></p>
+				</div>
+			</div>
+			<div id='turn-information'>
+				<img class='fl' id='turn-icon' src='img/turn-icon.png' alt='turn icon' />
+				<div class='p-container'>
+					<p class='sm-val'><%= turnNumber %></p>
+				</div>
+			</div>
 		</div>
 	</script>
 
 	<script type='text/template' id='opponent-score-display'>
-		<div>
-			<h4>Opponent Score: <%= opponentStrength %></h4>
+		<div id='opponent-score'>
+			<h4><%= opponentStrength %></h4>
 		</div>
 	</script>
 
@@ -68,51 +86,243 @@
 	<script src="js/lib/backbone.js"></script>
 	
 	<script src="js/functions.js"></script>
+	<script src="js/transient.js"></script>
 	<script src="js/testfixtures.js"></script>
 	<script src="js/game.js"></script>
 	<script src='js/views.js'></script>
 
 	<script>
-		$(function() {
-    		$(".draggable").draggable({ 
-    			axis: "y",
-      			containment: [0, -80, 0, 0],
-      			stop: function() {
-      				var topOffset = $(this).offset().top;
-      				if(topOffset < -15) easeToFinalLocation($(this), topOffset, -80);
-      				else easeToFinalLocation($(this), topOffset, 0);
-      			},
-      		});
-  		});
 
-  		function getTransient(x) {
-  			return 1 - (Math.pow(Math.E, -6 * x) * Math.cos(16 * x));
-  		};
 
-  		function easeToFinalLocation(obj, currentPosition, finalPosition) {
+		function Draggable(element, handleElement, begin, callback, callbackObj, contain) {
+			var element = element;
+			$(element).draggable({
+				start: function() {
+					begin();
+				},
+				containment: contain,
+				handle: handleElement,
+				stop: function() {
+					console.log('draggable disabled');
+					$(element).draggable('disable');
+					callback(this, reset, callbackObj);
+				}
+			});
+			function reset() {
+				console.log('draggable reenabled');
+				$(element).draggable('enable');
+			};
+			this.disable = function() {
+				$(element).draggable('disable');
+			};
+			this.enable = function() {
+				$(element).draggable('enable');
+			}
 
-  			var travelDistance = Math.abs(finalPosition - currentPosition);
+		};
 
-  			var numberOfIter = 40;
-  			var timeoutLength = 30;
+		
+  		
 
-  			for(var i = 0, j = 0; i < travelDistance; i += travelDistance/numberOfIter, j++ ) {
+  		var GameHomeView = Backbone.View.extend({
 
-  				// var transitiveEffects = (getTransient((j + 1) / numberOfIter) * travelDistance);
-  				// console.log(transitiveEffects);
+  			el: $('#home-page'),
 
-  				if(currentPosition < finalPosition) 
-  					setTimeout(function(avar) { obj.offset({ top: avar }) }, timeoutLength*j, currentPosition + (getTransient((j + 1) / numberOfIter) * travelDistance));
-  				else 
-  					setTimeout(function(avar) { obj.offset({ top: avar }) }, timeoutLength*j, currentPosition - (getTransient((j + 1) / numberOfIter) * travelDistance));
+			events: {
+				'click 			#end-turn-icon' 			: 'endTurn',
+				'mousedown 		#attack-inventory-icon'		: 'registerMouseDown',
+				'mousemove 		#attack-inventory-icon'		: 'registerMouseMove',
+				'mouseup 		#attack-inventory-icon'		: 'registerMouseUp',
+				// bind to menu
+				// bind to back button
+			},
 
+			registerMouseDown: function() {
+				this._mousedown = true;
+			},
+			
+			registerMouseMove: function() {
+				if(this._mousedown) this._isDragging = true;
+			},
+
+			registerMouseUp: function() {
+				this._mousedown = undefined;
+				if(this._isDragging) this._isDragging = undefined;
+				else this.goToAttackBuilder();
+			},
+
+			
+			// addToAttack: function() {
+				// console.log('add to attack called for unit: ' + this.model.get('unit').get('pieceName'));
+				// GameModel.addToAttack(this.model);
+			// },
+
+			initialize: function(attrs, options) {
+				this._transition = attrs.transition;
+				this._draggables = [];
+
+				// bind draggable events... the events execute and allow the drag, then fire off a callback
+				// function with the stop: function of the draggable is called...
+				var attackDraggable = new Draggable('#home-page', '#attack-inventory-icon', 
+					function() {$('#attack-inventory-icon').attr('src', 'img/attack-build-icon-active.png')}, this.draggableHandler, this, [0, -80, 0, 0]);
+				this._draggables.push(attackDraggable);
+			},
+
+			draggableHandler: function(element, resetCallback, callbackObj) {
+				// console.log(this);
+				var topOffset = $(element).offset().top;
+				if(topOffset < -20) {
+					easeToFinalLocation($(element), topOffset, -80);
+					callbackObj._transition('attackBuilder', 800);
+				} else {
+					$('#attack-inventory-icon').attr('src', 'img/attack-build-icon.png');
+      				easeToFinalLocation($(element), topOffset, 0);
+      				resetCallback();
+      			}
+			},
+
+			enableDraggables: function() {
+				_.each(this._draggables, function(draggable) {
+					draggable.enable();
+				});
+			},
+
+			endTurn: function() {
+				GameModel.endTurn();
+			},
+
+			goToAttackBuilder: function() {
+				// events will unbind automatically, but we must manually remove any draggables
+				_.each(this._draggables, function(draggable) {
+					draggable.disable();
+				});
+				$('#attack-inventory-icon').attr('src', 'img/attack-build-icon-active.png');
+    			easeToFinalLocation(this.$el, $('#home-page').offset().top, -80);
+    			this._transition('attackBuilder', 800);
+			}
+
+		});
+
+		var AttackBuilderView = Backbone.View.extend({
+
+			el: $('#home-page'),
+
+			events: {
+				'click 			#end-turn-icon' 			: 'endTurn',
+				'mousedown 		#attack-inventory-icon'		: 'registerMouseDown',
+				'mousemove 		#attack-inventory-icon'		: 'registerMouseMove',
+				'mouseup 		#attack-inventory-icon'		: 'registerMouseUp',
+			},
+
+			registerMouseDown: function() {
+				this._mousedown = true;
+			},
+			
+			registerMouseMove: function() {
+				if(this._mousedown) this._isDragging = true;
+			},
+
+			registerMouseUp: function() {
+				this._mousedown = undefined;
+				if(this._isDragging) this._isDragging = undefined;
+				else this.requestHomeView();
+			},
+
+			initialize: function(attrs, options) {
+				this._transition = attrs.transition;
+				this._draggables = [];
+
+				// bind draggable events... the events execute and allow the drag, then fire off a callback
+				// function with the stop: function of the draggable is called...
+				var attackDraggable = new Draggable('#home-page', '#attack-inventory-icon', 
+					function() {$('#attack-inventory-icon').attr('src', 'img/attack-build-icon-active.png')}, this.draggableHandler, this, [0, -80, 0, 0]);
+				this._draggables.push(attackDraggable);
+			},
+
+			requestHomeView: function() {
+				console.log('requested home view');
+				$('#attack-inventory-icon').attr('src', 'img/attack-build-icon.png');
+    			easeToFinalLocation(this.$el, $('#home-page').offset().top, 0);
+    			this._transition('gameHome', 800);
+
+			},
+
+			enableDraggables: function() {
+				_.each(this._draggables, function(draggable) {
+					draggable.enable();
+				});
+			},
+
+			draggableHandler: function(element, resetCallback, callbackObj) {
+				// console.log(this);
+				var topOffset = $(element).offset().top;
+				if(topOffset < -20) {
+					easeToFinalLocation($(element), topOffset, -80);
+					resetCallback();
+					
+				} else {
+					$('#attack-inventory-icon').attr('src', 'img/attack-build-icon.png');
+      				easeToFinalLocation($(element), topOffset, 0);
+      				callbackObj._transition('gameHome', 800);
+      			}
+			},
+
+
+
+
+
+		})
+
+
+  		function ViewManager() {
+
+  			var activeView;
+  			var views = {};
+  			var staticViews = [];
+
+  			this.transitionCallback = function(request, transitionTime) {
+  				activeView.undelegateEvents();
+
+  				// set the requested view as active after the timeout period...
+  				setTimeout(function() {
+  					activeView = views[request];
+  					activeView.delegateEvents();
+  					if(activeView.enableDraggables) activeView.enableDraggables();
+  				}, transitionTime);
+  			};
+
+  			this._setNonActiveViews = function() {
+  				_.each(views, function(view) {
+  					if(view != activeView) view.undelegateEvents();
+  				})
   			}
 
+  			// set the static views
+  			staticViews.push(new GameView);
+  			staticViews.push(new OpponentView);
 
-  			// finally, set manually to the exact amount
-  			setTimeout(function(loc) { obj.offset({top: loc})  }, numberOfIter * timeoutLength, finalPosition);
-  			
+  			// configure dynamic views...
+			views['gameHome'] = new GameHomeView({ transition: this.transitionCallback });
+			views['attackBuilder'] = new AttackBuilderView({ transition: this.transitionCallback });
+
+			// set the active view
+			activeView = views['gameHome'];
+			this._setNonActiveViews();
+
+
   		};
+
+
+  		// start the UI managing body
+  		var views = new ViewManager();
+
+
+
+
+
+
+
+
 	</script>
 
 </body>
