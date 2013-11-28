@@ -295,7 +295,7 @@ var SkyFlyerGameModel = Backbone.Model.extend({
 			// update the opponent strength pending the attack
 			var turn = gameConfig.get('turnNumber');
 			var oppDefenceScore = this.get('gameFunctions').getOpponentDefense(turn);
-			gameConfig.set('opponentStrength', gameConfig.get('opponentStrength') + oppDefenceScore);
+			gameConfig.set('opponentStrength', Math.floor(gameConfig.get('opponentStrength') + oppDefenceScore));
 
 			// clean up (reset) the attack force
 			attackForce.reset();

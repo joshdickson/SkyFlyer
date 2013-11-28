@@ -32,7 +32,12 @@ body {
     -webkit-tap-highlight-color:rgba(0,0,0,0);
 }
 
-
+#background-image {
+	position: absolute;
+	width: 320px;
+	height: 588px;
+	overflow: hidden;
+}
 
 
 
@@ -48,8 +53,9 @@ div#game-container {
 div#home-page {
 	height: 658px;
 	width: 320px;
-	background-color: #d4d4d4;
-	background-image: url('../img/background.png');
+	/*background-color: #d4d4d4;*/
+	/*background-image: url('../img/background.png');*/
+	/*background-position: center;*/
 }
 
 div#game-controls {

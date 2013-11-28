@@ -5,6 +5,67 @@
 
 
 
+ 		/**
+ * Utility for working with the opponent score canvas which has a moving gear
+ */
+function OpponentScoreDrawingManager() {
+	var _rotationPerMinute = 4;
+	var TO_RADIANS = Math.PI/180; 
+	var that = this;
+	var _rotation = 0;
+
+	// $('#opponent-score-drawing-canvas').attr('width', '20px');
+	// $('#opponent-score-drawing-canvas').attr('height', '20px');
+
+	this.setRotationPerMinute = function(newRotation) {
+		_rotationPerMinute = newRotation;
+	},
+
+	this.drawRotatedImage = function() {
+
+		var image = gearImage;
+		var x = 10;
+		var y = 10;
+		var angle = 0;
+        
+       // console.log('drawing rotated image');
+
+		// console.log($('#opponent-score-drawing-canvas'));
+
+		// var canvas = $('#opponent-score-drawing-canvas');
+		var context2d = $('#opponent-score-drawing-canvas')[0].getContext("2d");
+
+		// var context = $('#opponent-score-drawing-canvas')[0].getContext("2d");
+		context2d.clearRect(0, 0, 20, 20);
+		context2d.save(); 
+ 
+		// move to the middle of where we want to draw our image
+		context2d.translate(x, y);
+	 
+		// rotate around that point, converting our 
+		// angle from degrees to radians 
+		context2d.rotate(_rotation * TO_RADIANS);
+		var oppStrength = GameModel.get('gameState').get('opponentStrength');
+		_rotation += (.15 + (oppStrength / 62));
+		if(_rotation > 360) _rotation -= 360;
+	 
+		// draw it up and to the left by half the width
+		// and height of the image 
+		// console.log(image);
+		context2d.drawImage(image, -8, -8, 16, 16);
+
+		// context2d.drawImage(image, 0, 0, 36, 36);
+	 
+		// and restore the co-ords to how they were when we began
+		context2d.restore(); 
+
+		setTimeout(that.drawRotatedImage, 25);
+	}
+
+	setTimeout(this.drawRotatedImage, 25);
+
+
+};
 
 
  /**
