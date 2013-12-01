@@ -83,10 +83,11 @@ var GameHomeView = Backbone.View.extend({
 
 	// End the turn
 	endTurn: function() {
-		GameModel.endTurn();
 		var canvas = $('#attack-unit-canvas');
 		var ctx = canvas[0].getContext("2d");
 		ctx.clearRect(0, 0, 320, 658);
+		var result = GameModel.endTurn();
+		this._transition('transition', 1, result);
 	},
 
 	// Transition to the attack builder view via a callback request to the view manager

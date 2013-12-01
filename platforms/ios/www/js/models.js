@@ -175,8 +175,8 @@ var SkyFlyerGameModel = Backbone.Model.extend({
 		if(!attrs.gameState) throw "missing initial values";
 	},
 	addToAttack: function(attackInventoryItem) {
+		
 		if(attackInventoryItem.get('count')) {
-
 			var attackingMatch;
 			var attackForceLast = this.get('gameState').get('attackForce').last();
 			if(attackForceLast && attackForceLast.get('unit') === (attackInventoryItem.get('unit'))) {
@@ -235,6 +235,10 @@ var SkyFlyerGameModel = Backbone.Model.extend({
 		return this.get('gameState').get('playerCash');
 	},
 	endTurn: function() {
+
+		// start setting the response object
+		var response = {};
+		response.messageQueue = [];
 
 		var attackForce = this.get('gameState').get('attackForce');
 		var gameConfig = this.get('gameState');
@@ -303,10 +307,32 @@ var SkyFlyerGameModel = Backbone.Model.extend({
 			// check that there is no winner, if so, end the game, and declare that it's over
 			if(gameConfig.get('opponentStrength') > 100) {
 				gameConfig.set('isGameOver', true);
-				return 1; // opponent won
+				var winMessage = {};
+				winMessage.header = 'L';
+				winMessage.msg = 'Sorry, you have lost the game.'
+				winMessage.actions = [];
+				var restart = {};
+				restart.displayName = 'OK';
+				restart.isDefault = true;
+				restart.actionRequest = 'restart';
+				winMessage.actions.push(restart);
+				response.messageQueue.push(winMessage);
+				// console.log(response);
+				return response; // opponent won
 			} else if(gameConfig.get('opponentStrength') < 0) {
 				gameConfig.set('isGameOver', true);
-				return 0; // the player won
+				var winMessage = {};
+				winMessage.header = 'W';
+				winMessage.msg = "Congratulations. You've won the game.";
+				winMessage.actions = [];
+				var restart = {};
+				restart.displayName = 'OK';
+				restart.isDefault = true;
+				restart.actionRequest = 'restart';
+				winMessage.actions.push(restart);
+				response.messageQueue.push(winMessage);
+				// console.log(response);
+				return response; // the player won
 			}
 			
 			// increment the turn counter

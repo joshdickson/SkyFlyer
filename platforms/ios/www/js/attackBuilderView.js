@@ -75,6 +75,12 @@ var AttackBuilderView = Backbone.View.extend({
 		}
 	},
 
+	render: function() {
+		_.each(this._views, function(view) {
+			view.render();
+		})
+	},
+
 	// Initialize this view
 	initialize: function(attrs, options) {
 		// Set the transition callback
@@ -87,11 +93,6 @@ var AttackBuilderView = Backbone.View.extend({
 		this._views = [];
 		this._views.push(new AttackInventoryEffectsView);
 
-		// The #attack-inventory-icon image is draggable to allow the user to drag up to reveal the attack
-		// units container, so we set its functionality and callback handlers
-//		var attackDraggable = new Draggable('#home-page', '#attack-inventory-icon', 
-//			function() {$('#attack-inventory-icon').attr('src', 'img/attack-build-icon-active.png')}, this.attackInventoryHandleCallback, this, [0, -90, 0, 0]);
-//		this._draggables.push(attackDraggable);
 	},
 
 	// Transition to the hole view via a callback request to the view manager
@@ -100,13 +101,6 @@ var AttackBuilderView = Backbone.View.extend({
 		easeToFinalLocation(this.$el, $('#home-page').offset().top, 0);
 		this._transition('gameHome', 900);
 	},
-
-	// Enable all of the draggables for this view
-	// enableDraggables: function() {
-	// 	_.each(this._draggables, function(draggable) {
-	// 		draggable.enable();
-	// 	});
-	// },
 
 	// Set the callback for when the attack inventory draggable is released by the user
 	attackInventoryCallback: function(element, resetCallback, callbackObj) {
@@ -123,11 +117,14 @@ var AttackBuilderView = Backbone.View.extend({
 
 	// End the turn
 	endTurn: function() {
-		GameModel.endTurn();
 		var canvas = $('#attack-unit-canvas');
 		var ctx = canvas[0].getContext("2d");
 		ctx.clearRect(0, 0, 320, 658);
-		this.goToHomeView();
+		$('#attack-inventory-icon').attr('src', 'img/attack-build-icon.png');
+		easeToFinalLocation(this.$el, $('#home-page').offset().top, 0);
+
+		var result = GameModel.endTurn();
+		this._transition('transition', 0, result);
 	},
 
 });
@@ -192,8 +189,6 @@ var AttackInventoryEffectsView = Backbone.View.extend({
 			doMove = true;
 			preWaveLength = GameModel.get('gameState').get('attackForce').length;
 		}
-
-
 
 		// do the change on the model
 		var moveSuccess = GameModel.addToAttack(this.model);
@@ -310,7 +305,6 @@ var InventoryUnitView = Backbone.View.extend({
 
 	// set the div for this element
 	tagName: 'li',
-
 
 	template: _.template($('#attack-unit-template').html()),
 

@@ -6,6 +6,7 @@
 
 	<!-- external stylesheets -->
 	<link href='http://fonts.googleapis.com/css?family=Lato:300,400' rel='stylesheet' type='text/css'>
+	<link href='http://fonts.googleapis.com/css?family=Noticia+Text' rel='stylesheet' type='text/css'>
 
 	<!-- local stylesheets -->
 	<link rel="stylesheet" href="css/reset.css">
@@ -14,48 +15,58 @@
 </head>
 <body>
 
+	<div id='wrapper'>
 
-	<div id='game-wrapper'>
 
-		<div id='background-image'>
-			<img  src='img/background.png' alt='background' />
-		</div>
 
-		<div id='opponent-score'></div>
+		<div id='game-wrapper'>
 
-		<div id='home-page' class='draggable'>
+			<div id='grey-bg'></div>
 
-			<div id='game-container-canvas-wrapper'>
-				<canvas id='attack-unit-canvas'></canvas>
+			<div id='background-image'>
+				<img  src='img/background.png' alt='background' />
 			</div>
 
-			<div id='game-wrapper'>
-		
-				<!-- the game container -->
-				<div id='game-container'>
+			<div id='opponent-score'></div>
 
-					<!-- page elements -->
-					<div id='game-statistics'></div>
-					
-					<!-- game-controls -->
-					<div id='game-controls'>
-						<img id='attack-inventory-icon' class='game-control-icon' src='img/attack-build-icon.png' alt='attack icon' />
-						<img class='game-control-icon' src='img/queue-icon.png' alt='queue icon' />
-						<img class='game-control-icon' src='img/marketplace-icon.png' alt='marketplace icon' />
-						<img id='end-turn-icon' class='game-control-icon' src='img/end-turn-icon.png' alt='end turn icon' />
-					</div>
-				</div> <!-- end game-container -->
+			<div id='home-page' class='draggable'>
 
-				<!-- container for available attacking units -->
-				<div id='available-attack-units-container'>
-					<ul id='available-attack-units'></ul>
+				<div id='game-container-canvas-wrapper'>
+					<canvas id='attack-unit-canvas'></canvas>
 				</div>
 
-			</div> <!-- end game-wrapper -->
+				<div id='game-wrapper'>
+			
+					<!-- the game container -->
+					<div id='game-container'>
 
-		</div> <!-- end home-page -->
+						<!-- page elements -->
+						<div id='game-statistics'></div>
+						
+						<!-- game-controls -->
+						<div id='game-controls'>
+							<img id='attack-inventory-icon' class='game-control-icon' src='img/attack-build-icon.png' alt='attack icon' />
+							<img class='game-control-icon' src='img/queue-icon.png' alt='queue icon' />
+							<img class='game-control-icon' src='img/marketplace-icon.png' alt='marketplace icon' />
+							<img id='end-turn-icon' class='game-control-icon' src='img/end-turn-icon.png' alt='end turn icon' />
+						</div> <!-- end game-controls -->
+					</div> <!-- end game-container -->
 
-	</div>
+					<!-- container for available attacking units -->
+					<div id='available-attack-units-container'>
+						<ul id='available-attack-units'></ul>
+					</div>
+
+				</div> <!-- end game-wrapper -->
+
+			</div> <!-- end home-page -->
+
+		</div> <!-- end game-wrapper -->
+
+
+
+	</div> <!-- end wrapper -->
+
 
 
 
@@ -85,6 +96,25 @@
 		<canvas id='opponent-score-drawing-canvas'></canvas>
 		<h4 id='opponent-score-text'><%= opponentStrength %></h4>
 	</script>
+
+
+	<script type='text/template' id='message-display-template'>
+		<div id='message-display'>
+			<h3><%= header %></h3>
+			<p><%= msg %></p>
+			<ul id='option-list'></ul>
+		</div> <!-- end message display -->
+	</script>
+
+	<script type='text/template' id='message-display-option'>
+		<li class='message-option-item'>
+			<div class='message-display-option-choice'>
+				<h5 class='message-option-name'><%= displayName %></h5>
+			</div>
+		</li>
+	</script>
+
+
 
 	<script type='text/template' id='attack-unit-template'>
 		<div class='attack-inventory-icon'>
@@ -122,8 +152,10 @@
 	<script src='js/views.js'></script>
 	<script src='js/draggable.js'></script>
 	<script src='js/attackBuilderView.js'></script>
+	<script src='js/transitionview.js'></script>
 	<script src='js/viewmanager.js'></script>
 	<script src='js/game.js'></script>
+
     
     <script type="text/javascript" src="js/index.js"></script>
     <script type="text/javascript">

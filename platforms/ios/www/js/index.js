@@ -37,13 +37,13 @@ var app = {
     },
     // Update DOM on a Received Event
     receivedEvent: function(id) {
-        console.log('received an event...');
+        // console.log('received an event...');
         
 //        var views = new ViewManager();
 
 //        console.log('Received Event: ' + id);
         
-        console.log('test');
+        // console.log('test');
         
 //
         customFunction(app);
@@ -51,10 +51,11 @@ var app = {
 };
 
 var inventoryCanvasTimeouts = [];
+var views;
 
 function customFunction(app) {
-    console.log('called custom function');
-    var views = new ViewManager;
+    // console.log('called custom function');
+    views = new ViewManager;
 
     $('#attack-unit-canvas').attr('width', '320px');
     $('#attack-unit-canvas').attr('height', '658px');
