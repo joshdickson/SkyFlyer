@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>SkyFlyer Application</title>
+
+	<!-- external stylesheets -->
+	<link href='http://fonts.googleapis.com/css?family=Lato:300,400' rel='stylesheet' type='text/css'>
+	<link href='http://fonts.googleapis.com/css?family=Noticia+Text' rel='stylesheet' type='text/css'>
+
+	<!-- local stylesheets -->
+	<link rel="stylesheet" href="css/reset.css">
+	<link rel="stylesheet" href="css/skyflyer.css">
+	
+</head>
+<body>
+
+	<div id='wrapper'>
+
+
+
+		<div id='game-wrapper'>
+
+			<div id='grey-bg'></div>
+
+			<div id='background-image'>
+				<img  src='img/background.png' alt='background' />
+			</div>
+
+			<div id='opponent-score'></div>
+
+			<div id='home-page' class='draggable'>
+
+				<div id='game-container-canvas-wrapper'>
+					<canvas id='attack-unit-canvas'></canvas>
+				</div>
+
+				<div id='game-wrapper'>
+			
+					<!-- the game container -->
+					<div id='game-container'>
+
+						<!-- page elements -->
+						<div id='game-statistics'></div>
+						
+						<!-- game-controls -->
+						<div id='game-controls'>
+							<img id='attack-inventory-icon' class='game-control-icon' src='img/attack-build-icon.png' alt='attack icon' />
+							<img class='game-control-icon' src='img/queue-icon.png' alt='queue icon' />
+							<img class='game-control-icon' src='img/marketplace-icon.png' alt='marketplace icon' />
+							<img id='end-turn-icon' class='game-control-icon' src='img/end-turn-icon.png' alt='end turn icon' />
+						</div> <!-- end game-controls -->
+					</div> <!-- end game-container -->
+
+					<!-- container for available attacking units -->
+					<div id='available-attack-units-container'>
+						<ul id='available-attack-units'></ul>
+					</div>
+
+				</div> <!-- end game-wrapper -->
+
+			</div> <!-- end home-page -->
+
+		</div> <!-- end game-wrapper -->
+
+
+
+	</div> <!-- end wrapper -->
+
+
+
+
+	<!-- templates -->
+	<script type='text/template' id='game-info'>
+		<div class='fl'>
+			<h2 id='playerPoints'><%=playerPoints%></h2>
+			<p id='player-rank' class='fr'><%=playerRank%></p>
+		</div>
+		<div id='sub-information' class='fr'>
+			<div id='cash-information'>
+				<img class='fl' id='cash-icon' src='img/cash-icon.png' alt='cash icon' />
+				<div class='p-container'>
+					<p class='sm-val'><%=playerCash%></p>
+				</div>
+			</div>
+			<div id='turn-information'>
+				<img class='fl' id='turn-icon' src='img/turn-icon.png' alt='turn icon' />
+				<div class='p-container'>
+					<p class='sm-val'><%= turnNumber %></p>
+				</div>
+			</div>
+		</div>
+	</script>
+
+	<script type='text/template' id='opponent-score-display'>
+		<canvas id='opponent-score-drawing-canvas'></canvas>
+		<h4 id='opponent-score-text'><%= opponentStrength %></h4>
+	</script>
+
+
+	<script type='text/template' id='message-display-template'>
+		<div id='message-display'>
+			<h3><%= header %></h3>
+			<p><%= msg %></p>
+			<ul id='option-list'></ul>
+		</div> <!-- end message display -->
+	</script>
+
+	<script type='text/template' id='message-display-option'>
+		<li class='message-option-item'>
+			<div class='message-display-option-choice'>
+				<h5 class='message-option-name'><%= displayName %></h5>
+			</div>
+		</li>
+	</script>
+
+
+
+	<script type='text/template' id='attack-unit-template'>
+		<div class='attack-inventory-icon'>
+			<div class='inventory-icon-wrapper'>
+				<img class='inventory-icon' src='img/<%= unit.get('pieceName') %>.png' alt='aircraft icon' />
+			</div>
+			<div class='unit-count-wrapper'>
+				<p class='unit-count'><%= count %></p>
+			</div>
+		</div>
+	</script>
+    <script type="text/javascript">
+        document.addEventListener('touchmove', function(e) { e.preventDefault(); }, false);
+    </script>
+    <script type="text/javascript">
+        window.onerror = function(message, url, lineNumber) {
+            console.log("Error: " + message + " in " + url + " at line " + lineNumber);
+        }
+    </script>
+    
+    <script type="text/javascript" src="cordova.js"></script>
+    <script type="text/javascript" src="cordova_plugins.js"></script>
+    
+    <script src="js/lib/jquery.js"></script>
+	<script src="js/lib/jqueryui.js"></script>
+	<script src="js/lib/underscore.js"></script>
+	<script src="js/lib/backbone.js"></script>
+	<script src="js/functions.js"></script>
+	<script src="js/transient.js"></script>
+	<script src="js/util.js"></script>
+	<script src="js/canvas.js"></script>
+	<script src="js/testfixtures.js"></script>
+	<script src="js/models.js"></script>
+	<script src="js/homeView.js"></script>
+	<script src='js/views.js'></script>
+	<script src='js/draggable.js'></script>
+	<script src='js/attackBuilderView.js'></script>
+	<script src='js/transitionview.js'></script>
+	<script src='js/viewmanager.js'></script>
+	<script src='js/game.js'></script>
+
+    
+    <script type="text/javascript" src="js/index.js"></script>
+    <script type="text/javascript">
+        app.initialize();
+    </script>
+
+</body>
+</html>
