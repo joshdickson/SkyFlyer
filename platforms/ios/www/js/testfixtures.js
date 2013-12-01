@@ -95,7 +95,7 @@ function buildTutorialGame() {
 		'playerUnitInventory': playerUnitInventory,
 		'playerCash': 840,
 		'playerPoints': 368,
-		'opponentStrength': 99
+		'opponentStrength': 25
 	});
 }
 

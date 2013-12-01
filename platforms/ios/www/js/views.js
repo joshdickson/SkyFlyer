@@ -13,6 +13,11 @@ var GameStatsView = Backbone.View.extend({
 		this.render();
 	},
 
+	refresh: function() {
+		this.listenTo(GameModel.get('gameState'), 'change', this.render);
+		this.render();
+	},
+
 	render: function() {
 		// map the player's rank over
 		GameModel.get('gameState').set('playerRank', GameModel.get('player').get('rank'));
@@ -81,6 +86,13 @@ var OpponentView = Backbone.View.extend({
 
 	// set the template for this view
 	template: _.template($('#opponent-score-display').html()),
+
+	refresh: function() {
+		this._drawingManager.stop();
+		this._drawingManager = new OpponentScoreDrawingManager;
+		this.listenTo(GameModel.get('gameState'), 'change', this.render);
+		this.render();
+	},
 	
 	initialize: function() {
 		this.$el.html(this.template(GameModel.get('gameState').toJSON()));

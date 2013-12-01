@@ -14,20 +14,21 @@
 			view.render();
 		});
 		_.each(staticViews, function(view) {
-			view.render();
+			view.refresh();
 		});
 	}
 
 	this.transitionCallback = function(request, transitionTime, message) {
 		activeView.undelegateEvents();
 		if(activeView.deactivateChildViews) activeView.deactivateChildViews();
-
+		// console.log("rec'd request to go to: " + request);
 		// set the requested view as active after the timeout period...
 		setTimeout(function() {
 			activeView = views[request];
 			activeView.delegateEvents();
 			if(activeView.set) activeView.set(message);
 			if(activeView.activateChildViews) activeView.activateChildViews();
+			// console.log('going to :' + request);
 		}, transitionTime);
 	};
 
@@ -37,7 +38,7 @@
 				view.undelegateEvents();
 				if(view.deactivateChildViews) view.deactivateChildViews();
 			}
-		})
+		});
 	}
 
 	// set the static views

@@ -26,7 +26,7 @@ var TransitionView = Backbone.View.extend({
 
 		if(action.actionRequest === 'restart') {
 
-			console.log('restarting game?');
+			// console.log('restarting game?');
 			// restart the game...
 			GameModel = new SkyFlyerGameModel({
 				'gameState': buildTutorialGame(), 
@@ -37,12 +37,14 @@ var TransitionView = Backbone.View.extend({
 			views.refresh();
 
 			// destroy the display
-			console.log($('#game-wrapper').children()[0]);
+			// console.log($('#game-wrapper').children()[0]);
 
 			// remove the overlay message
 			$('#game-wrapper').children()[0].remove();
 
-			setTimeout(this._home, 1, this);
+			console.log('requested go home');
+			this._home(this);
+			// setTimeout(this._home, 1, this);
 		}
 		
 	},
