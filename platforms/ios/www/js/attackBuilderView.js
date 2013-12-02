@@ -78,6 +78,7 @@ var AttackBuilderView = Backbone.View.extend({
 	render: function() {
 		_.each(this._views, function(view) {
 			view.render();
+			view.reset();
 		})
 	},
 
@@ -136,7 +137,48 @@ var AttackInventoryEffectsView = Backbone.View.extend({
 		console.log('init called');
 		this._renderTimeouts = [];
 		this.listenTo(GameModel.get('gameState').get('playerUnitInventory'), 'change', this.render);
+
+		this._views = [];
+		var that = this;
+		var counter = 0;
+
+		GameModel.get('gameState').get('playerUnitInventory').each(function(inventoryItem) {
+			var view = new InventoryUnitView({ 
+				model: inventoryItem,
+				index: counter,
+				addToAttackCallback: that.callbackHandler,
+				renderTimeoutLog: that._renderTimeouts
+			});
+			that._views.push(view);
+			counter++;
+			this.$('#available-attack-units').append(view.render().el);
+		});
+
+		// return this;
+
+
+
+
 		this.render();
+	},
+
+	reset: function() {
+		this._views = [];
+		var that = this;
+		var counter = 0;
+		$('#available-attack-units').empty();
+		GameModel.get('gameState').get('playerUnitInventory').each(function(inventoryItem) {
+			var view = new InventoryUnitView({ 
+				model: inventoryItem,
+				index: counter,
+				addToAttackCallback: that.callbackHandler,
+				renderTimeoutLog: that._renderTimeouts
+			});
+			that._views.push(view);
+			counter++;
+			this.$('#available-attack-units').append(view.render().el);
+		});
+
 	},
 
 	// Deactivate all of the views owned by this view
@@ -159,25 +201,11 @@ var AttackInventoryEffectsView = Backbone.View.extend({
 		}
 	},
 
+
+
 	render: function() {
 
-		this._views = [];
-		var that = this;
-		var counter = 0;
-
-		$('#available-attack-units').empty();
-		that._views.length = 0; // reset the list of views - TODO this should not update all?
-		GameModel.get('gameState').get('playerUnitInventory').each(function(inventoryItem) {
-			var view = new InventoryUnitView({ 
-				model: inventoryItem,
-				index: counter,
-				addToAttackCallback: that.callbackHandler,
-				renderTimeoutLog: that._renderTimeouts
-			});
-			that._views.push(view);
-			counter++;
-			this.$('#available-attack-units').append(view.render().el);
-		});
+		
 
 		return this;
 	},
@@ -326,6 +354,9 @@ var InventoryUnitView = Backbone.View.extend({
 	render: function() {
 
 		this.$el.html(this.template(this.model.toJSON()));
+
+		// console.log(this.model.get('unit').get('pieceName').toLowerCase());
+		var pieceName = this.model.get('unit').get('pieceName').toLowerCase();
 		// set the alternating color for the backgrounds...
 		if(!(this._index % 2)) {
 			$(this.$el.children()[0]).css('background-color', '#494d57');
@@ -335,6 +366,8 @@ var InventoryUnitView = Backbone.View.extend({
 
 		// print out the image sizes, because we are going to adjust them
 		var image = this.$el.find('.inventory-icon');
+		// switch the src
+		var imageSrc = $(image).attr('src', 'img/' + pieceName + '.png');
 		var imageSrc = $(image).attr('src').toLowerCase();
 
 		var jsImageCopy;
