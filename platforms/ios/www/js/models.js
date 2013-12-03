@@ -242,6 +242,7 @@ var SkyFlyerGameModel = Backbone.Model.extend({
 
 		var attackForce = this.get('gameState').get('attackForce');
 		var gameConfig = this.get('gameState');
+		var attackForceTotal = 0;
 
 		// if the game is not over, attempt the turn
 		if(gameConfig.get('isGameOver') !== true) {
@@ -282,6 +283,9 @@ var SkyFlyerGameModel = Backbone.Model.extend({
 						// now, execute the attack. the unit evaded detection, or was detected and survivde
 						if(willAttack) { 
 							var attackingScore = attackingUnit.get('attack') * 10 * ( 1 + (attackingUnit.get('experience') / 10)) / 20;
+							
+							attackForceTotal += attackingScore;
+
 							gameConfig.set('opponentStrength', gameConfig.get('opponentStrength') - attackingScore);
 
 							// the unit survived, so we now add it back to the player's inventory (otherwise it was lost )
@@ -295,6 +299,12 @@ var SkyFlyerGameModel = Backbone.Model.extend({
 				});
 
 			} 
+
+			// update the player's score
+			var cashIncrease = Math.floor(attackForceTotal * 6);
+			var pointsIncrease = Math.floor(attackForceTotal * 1.3);
+			gameConfig.set('playerCash', gameConfig.get('playerCash') + cashIncrease);
+			gameConfig.set('playerPoints', gameConfig.get('playerPoints') + cashIncrease);
 
 			// update the opponent strength pending the attack
 			var turn = gameConfig.get('turnNumber');

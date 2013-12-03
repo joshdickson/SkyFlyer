@@ -16,6 +16,41 @@ function OpponentScoreDrawingManager() {
 	var _isDrawing = true;
 
 
+
+
+	var canvas = $('#opponent-score-drawing-canvas')[0];
+	var context2d = $('#opponent-score-drawing-canvas')[0].getContext("2d");
+	var context = context2d;
+
+	var oldWidth = 20;
+    var oldHeight = 20;
+
+    console.log('Old Width: ' + oldWidth + ' and Old Height: ' + oldHeight);
+
+    var devicePixelRatio = window.devicePixelRatio || 1
+    var backingStoreRatio = context.webkitBackingStorePixelRatio ||
+                        context.mozBackingStorePixelRatio ||
+                        context.msBackingStorePixelRatio ||
+                        context.oBackingStorePixelRatio ||
+                        context.backingStorePixelRatio || 1;
+
+    var ratio = devicePixelRatio / backingStoreRatio;
+
+    console.log('Dev Pixel Ratio  : ' + devicePixelRatio);
+    console.log('Backing Store R  : ' + backingStoreRatio);
+    console.log('Ratio            : ' + ratio);
+
+    canvas.width = oldWidth * ratio;
+    canvas.height = oldHeight * ratio;
+
+    canvas.style.width = oldWidth + 'px';
+    canvas.style.height = oldHeight + 'px';
+
+    context.scale(ratio, ratio);
+
+
+
+
 	this.stop = function() {
 		_isDrawing = false;
 	},
@@ -29,20 +64,25 @@ function OpponentScoreDrawingManager() {
 
 	this.drawRotatedImage = function() {
 
+
+
 		var image = gearImage;
 		var x = 10;
 		var y = 10;
 		var angle = 0;
         
-       // console.log('drawing rotated image');
+        
 
-		// console.log($('#opponent-score-drawing-canvas'));
 
-		// var canvas = $('#opponent-score-drawing-canvas');
-		var context2d = $('#opponent-score-drawing-canvas')[0].getContext("2d");
 
 		// var context = $('#opponent-score-drawing-canvas')[0].getContext("2d");
 		context2d.clearRect(0, 0, 20, 20);
+
+		// context2d.attr("width", 20 * window.devicePixelRatio);
+		// context2d.attr("height", 20 * window.devicePixelRatio);
+		
+
+		// console.log('Devide Pixel Ratio: ' + window.devicePixelRatio);
 
 		if(_isDrawing) {
 			context2d.save(); 
@@ -95,6 +135,44 @@ function CanvasDrawingManager() {
 
 	var _transitionTime = 800;
 	var _numberOfIterations = 50;
+
+
+
+
+	var canvas = $('#attack-unit-canvas')[0];
+	var context2d = $('#attack-unit-canvas')[0].getContext("2d");
+	var context = context2d;
+
+	var oldWidth = 320;
+    var oldHeight = 658;
+
+    console.log('Old Width: ' + oldWidth + ' and Old Height: ' + oldHeight);
+
+    var devicePixelRatio = window.devicePixelRatio || 1
+    var backingStoreRatio = context.webkitBackingStorePixelRatio ||
+                        context.mozBackingStorePixelRatio ||
+                        context.msBackingStorePixelRatio ||
+                        context.oBackingStorePixelRatio ||
+                        context.backingStorePixelRatio || 1;
+
+    var ratio = devicePixelRatio / backingStoreRatio;
+
+    console.log('Dev Pixel Ratio  : ' + devicePixelRatio);
+    console.log('Backing Store R  : ' + backingStoreRatio);
+    console.log('Ratio            : ' + ratio);
+
+    canvas.width = oldWidth * ratio;
+    canvas.height = oldHeight * ratio;
+
+    canvas.style.width = oldWidth + 'px';
+    canvas.style.height = oldHeight + 'px';
+
+    context.scale(ratio, ratio);
+
+
+
+
+
 
 	this.addStatic = function(aStatic) {
 		_statics.push(aStatic);
