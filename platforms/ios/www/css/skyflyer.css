@@ -1,6 +1,8 @@
 
 
 
+/********** Canvas Smoothing **********/
+
 
 
 
@@ -38,7 +40,7 @@ div#opponent-score {
 }
 
 #opponent-score-text {
-	margin-left: -16px;
+	margin-left: 4px;
 	float: left;
 	font-weight: 400;
 	margin-top: 1px;
@@ -128,7 +130,7 @@ h2#playerPoints {
 
 p#player-rank {
 	font-size: 14px;
-	font-weight: 400;
+	font-weight: 300;
 	padding-right: 6px;
 	margin-top: -5px;
 }
@@ -144,7 +146,7 @@ div#turn-information {
 
 div#sub-information {
 	padding-top: 62px;
-	font-weight: 400;
+	font-weight: 300;
 }
 
 div.p-container {
@@ -181,7 +183,7 @@ div.inventory-icon-wrapper {
 }
 
 p.unit-count {
-	font-weight: 400;
+	font-weight: 300;
 	font-size: 15px;
 }
 

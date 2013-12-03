@@ -119,7 +119,7 @@
 	<script type='text/template' id='attack-unit-template'>
 		<div class='attack-inventory-icon'>
 			<div class='inventory-icon-wrapper'>
-				<img class='inventory-icon' src='img/<%= unit.get('pieceName') %>.png' alt='aircraft icon' />
+				<img class='inventory-icon' src='img/liberator.png' alt='aircraft icon' />
 			</div>
 			<div class='unit-count-wrapper'>
 				<p class='unit-count'><%= count %></p>
@@ -129,6 +129,7 @@
     <script type="text/javascript">
         document.addEventListener('touchmove', function(e) { e.preventDefault(); }, false);
     </script>
+    
     <script type="text/javascript">
         window.onerror = function(message, url, lineNumber) {
             console.log("Error: " + message + " in " + url + " at line " + lineNumber);

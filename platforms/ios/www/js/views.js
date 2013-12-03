@@ -89,16 +89,18 @@ var OpponentView = Backbone.View.extend({
 
 	refresh: function() {
 		this._drawingManager.stop();
-		this._drawingManager = new OpponentScoreDrawingManager;
+		this._drawingManager = new OpponentScoreDrawingManager();
+		console.log(this._drawingManager === undefined);
 		this.listenTo(GameModel.get('gameState'), 'change', this.render);
 		this.render();
 	},
 	
 	initialize: function() {
 		this.$el.html(this.template(GameModel.get('gameState').toJSON()));
+		
 		this.listenTo(GameModel.get('gameState'), 'change', this.render);
 		this.render();
-		this._drawingManager = new OpponentScoreDrawingManager;
+		this._drawingManager = new OpponentScoreDrawingManager();
 	},
 
 	render: function() {

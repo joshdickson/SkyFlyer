@@ -55,13 +55,15 @@ var views;
 
 function customFunction(app) {
     // console.log('called custom function');
-    views = new ViewManager;
+    
 
     $('#attack-unit-canvas').attr('width', '320px');
     $('#attack-unit-canvas').attr('height', '658px');
 
-    $('#opponent-score-drawing-canvas').attr('width', '40px');
-    $('#opponent-score-drawing-canvas').attr('height', '40px');
+    // $('#opponent-score-drawing-canvas').attr('width', '40px');
+    // $('#opponent-score-drawing-canvas').attr('height', '40px');
+
+    views = new ViewManager;
     doImageLoadProcedure();
 
     // set up the global variable for drawing timeouts

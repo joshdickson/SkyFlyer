@@ -8,7 +8,11 @@ var TransitionView = Backbone.View.extend({
 	// the native element for this page
 	el: $('#game-wrapper'),
 
-	_process: function(command) {
+	process: function(command) {
+
+		// log the command for debugging process
+		console.log('Command incoming: ' + command);
+
 		var active = this._activeMessage;
 		
 		var action;
@@ -36,9 +40,6 @@ var TransitionView = Backbone.View.extend({
 
 			views.refresh();
 
-			// destroy the display
-			// console.log($('#game-wrapper').children()[0]);
-
 			// remove the overlay message
 			$('#game-wrapper').children()[0].remove();
 
@@ -47,6 +48,43 @@ var TransitionView = Backbone.View.extend({
 			// setTimeout(this._home, 1, this);
 		}
 		
+	},
+
+	tester: function(key) {
+		console.log('Tester called');
+
+		// log the key for debugging process
+		console.log('Command incoming: ' + key);
+
+		var active = this._activeMessage;
+		
+		var action;
+		if(key === 'default') {
+			_.each(this._activeMessage.actions, function(locAction) {
+				if(locAction.isDefault) action = locAction;
+			});
+		} else {
+			_.each(this._activeMessage.actions, function(locAction) {
+				if(locAction.displayName.toLowerCase() === key) action = locAction;
+			});
+		}
+
+		$('#game-wrapper').off();
+
+		if(action.actionRequest === 'restart') {
+
+			// restart the game...
+			GameModel = new SkyFlyerGameModel({
+				'gameState': buildTutorialGame(), 
+				'gameFunctions': gameFunctions,
+				'player': gamePlayer
+			});
+
+			views.refresh();
+
+			$('#game-wrapper').find('#message-display').remove();
+			this._home(this);
+		}
 	},
 
 	set: function(response) {
@@ -87,9 +125,14 @@ var TransitionView = Backbone.View.extend({
 					if(c && (c.indexOf('message-option-item') || c.indexOf('message-display-option-choice'))) {
 						var entry = $(event.target).parent().find('.message-option-choice');
 						key = $.trim($(entry.context).text()).toLowerCase();
-					} 
+					}
 
-					that._process(key);
+					console.log('Process: ');
+					console.log(that.process === undefined);
+
+					// 
+					that.tester(key);
+					// that.process(key);
 
 				});
 
