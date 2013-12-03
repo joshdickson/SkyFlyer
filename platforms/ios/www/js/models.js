@@ -316,6 +316,7 @@ var SkyFlyerGameModel = Backbone.Model.extend({
 
 			// check that there is no winner, if so, end the game, and declare that it's over
 			if(gameConfig.get('opponentStrength') > 100) {
+				response.winner = 'ai';
 				gameConfig.set('isGameOver', true);
 				var winMessage = {};
 				winMessage.header = 'L';
@@ -330,6 +331,7 @@ var SkyFlyerGameModel = Backbone.Model.extend({
 				// console.log(response);
 				return response; // opponent won
 			} else if(gameConfig.get('opponentStrength') < 0) {
+				response.winner = 'player';
 				gameConfig.set('isGameOver', true);
 				var winMessage = {};
 				winMessage.header = 'W';

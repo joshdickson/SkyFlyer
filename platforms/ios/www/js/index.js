@@ -16,6 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
+
+var inventoryCanvasTimeouts = [];
+var views;
+
+
 var app = {
     // Application Constructor
     initialize: function() {
@@ -37,38 +43,7 @@ var app = {
     },
     // Update DOM on a Received Event
     receivedEvent: function(id) {
-        // console.log('received an event...');
-        
-//        var views = new ViewManager();
-
-//        console.log('Received Event: ' + id);
-        
-        // console.log('test');
-        
-//
-        customFunction(app);
+        views = new ViewManager;
     }
 };
 
-var inventoryCanvasTimeouts = [];
-var views;
-
-function customFunction(app) {
-    // console.log('called custom function');
-    
-
-    $('#attack-unit-canvas').attr('width', '320px');
-    $('#attack-unit-canvas').attr('height', '658px');
-
-    // $('#opponent-score-drawing-canvas').attr('width', '40px');
-    // $('#opponent-score-drawing-canvas').attr('height', '40px');
-
-    views = new ViewManager;
-    doImageLoadProcedure();
-
-    // set up the global variable for drawing timeouts
-}
-
-function doImageLoadProcedure() {
-    var imageURLs = [''];
-}

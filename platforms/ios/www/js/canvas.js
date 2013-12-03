@@ -5,7 +5,7 @@
 
 
 
- 		/**
+ /**
  * Utility for working with the opponent score canvas which has a moving gear
  */
 function OpponentScoreDrawingManager() {
@@ -25,9 +25,7 @@ function OpponentScoreDrawingManager() {
 	var oldWidth = 20;
     var oldHeight = 20;
 
-    console.log('Old Width: ' + oldWidth + ' and Old Height: ' + oldHeight);
-
-    var devicePixelRatio = window.devicePixelRatio || 1
+    var devicePixelRatio = window.devicePixelRatio || 1;
     var backingStoreRatio = context.webkitBackingStorePixelRatio ||
                         context.mozBackingStorePixelRatio ||
                         context.msBackingStorePixelRatio ||
@@ -35,10 +33,6 @@ function OpponentScoreDrawingManager() {
                         context.backingStorePixelRatio || 1;
 
     var ratio = devicePixelRatio / backingStoreRatio;
-
-    console.log('Dev Pixel Ratio  : ' + devicePixelRatio);
-    console.log('Backing Store R  : ' + backingStoreRatio);
-    console.log('Ratio            : ' + ratio);
 
     canvas.width = oldWidth * ratio;
     canvas.height = oldHeight * ratio;
@@ -146,7 +140,7 @@ function CanvasDrawingManager() {
 	var oldWidth = 320;
     var oldHeight = 658;
 
-    console.log('Old Width: ' + oldWidth + ' and Old Height: ' + oldHeight);
+    // console.log('Old Width: ' + oldWidth + ' and Old Height: ' + oldHeight);
 
     var devicePixelRatio = window.devicePixelRatio || 1
     var backingStoreRatio = context.webkitBackingStorePixelRatio ||
@@ -157,9 +151,9 @@ function CanvasDrawingManager() {
 
     var ratio = devicePixelRatio / backingStoreRatio;
 
-    console.log('Dev Pixel Ratio  : ' + devicePixelRatio);
-    console.log('Backing Store R  : ' + backingStoreRatio);
-    console.log('Ratio            : ' + ratio);
+    // console.log('Dev Pixel Ratio  : ' + devicePixelRatio);
+    // console.log('Backing Store R  : ' + backingStoreRatio);
+    // console.log('Ratio            : ' + ratio);
 
     canvas.width = oldWidth * ratio;
     canvas.height = oldHeight * ratio;
