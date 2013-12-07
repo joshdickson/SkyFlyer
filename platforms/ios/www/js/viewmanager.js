@@ -22,6 +22,9 @@
 		activeView.undelegateEvents();
 		if(activeView.deactivateChildViews) activeView.deactivateChildViews();
 
+		
+		
+
 		// set the requested view as active after the timeout period...
 		setTimeout(function() {
 			activeView = views[request];
@@ -54,3 +57,13 @@
 	this._setNonActiveViews();
 
 }
+
+
+/**
+ * A view that organizes the attack builder 'canvas'
+ */
+var AttackBuilderDrawingAreaView = Backbone.View.extend({
+
+
+
+});

@@ -3,14 +3,18 @@
  * Joshua Dickson
  */
 
+$('#game-container-canvas-wrapper').empty();
+for(var k = 0; k < 9; k++) {
+	$('#game-container-canvas-wrapper').append('<div class="drawing-icon"><img class="fl drawing-icon-image" src="img/mustang-small.png" /><p class="cb drawing-icon-count">5</p></div>');
+}
 
 
- 		/**
+ /**
  * Utility for working with the opponent score canvas which has a moving gear
  */
 function OpponentScoreDrawingManager() {
 	var _rotationPerMinute = 4;
-	var TO_RADIANS = Math.PI/180; 
+	var TO_RADIANS = Math.PI/180;
 	var that = this;
 	var _rotation = 0;
 	var _isDrawing = true;
@@ -25,9 +29,7 @@ function OpponentScoreDrawingManager() {
 	var oldWidth = 20;
     var oldHeight = 20;
 
-    console.log('Old Width: ' + oldWidth + ' and Old Height: ' + oldHeight);
-
-    var devicePixelRatio = window.devicePixelRatio || 1
+    var devicePixelRatio = window.devicePixelRatio || 1;
     var backingStoreRatio = context.webkitBackingStorePixelRatio ||
                         context.mozBackingStorePixelRatio ||
                         context.msBackingStorePixelRatio ||
@@ -35,10 +37,6 @@ function OpponentScoreDrawingManager() {
                         context.backingStorePixelRatio || 1;
 
     var ratio = devicePixelRatio / backingStoreRatio;
-
-    console.log('Dev Pixel Ratio  : ' + devicePixelRatio);
-    console.log('Backing Store R  : ' + backingStoreRatio);
-    console.log('Ratio            : ' + ratio);
 
     canvas.width = oldWidth * ratio;
     canvas.height = oldHeight * ratio;
@@ -48,15 +46,9 @@ function OpponentScoreDrawingManager() {
 
     context.scale(ratio, ratio);
 
-
-
-
 	this.stop = function() {
 		_isDrawing = false;
 	},
-
-	// $('#opponent-score-drawing-canvas').attr('width', '20px');
-	// $('#opponent-score-drawing-canvas').attr('height', '20px');
 
 	this.setRotationPerMinute = function(newRotation) {
 		_rotationPerMinute = newRotation;
@@ -64,25 +56,12 @@ function OpponentScoreDrawingManager() {
 
 	this.drawRotatedImage = function() {
 
-
-
 		var image = gearImage;
 		var x = 10;
 		var y = 10;
 		var angle = 0;
         
-        
-
-
-
-		// var context = $('#opponent-score-drawing-canvas')[0].getContext("2d");
 		context2d.clearRect(0, 0, 20, 20);
-
-		// context2d.attr("width", 20 * window.devicePixelRatio);
-		// context2d.attr("height", 20 * window.devicePixelRatio);
-		
-
-		// console.log('Devide Pixel Ratio: ' + window.devicePixelRatio);
 
 		if(_isDrawing) {
 			context2d.save(); 
@@ -134,44 +113,7 @@ function CanvasDrawingManager() {
 	var _newUnitDrawing = false;
 
 	var _transitionTime = 800;
-	var _numberOfIterations = 50;
-
-
-
-
-	var canvas = $('#attack-unit-canvas')[0];
-	var context2d = $('#attack-unit-canvas')[0].getContext("2d");
-	var context = context2d;
-
-	var oldWidth = 320;
-    var oldHeight = 658;
-
-    console.log('Old Width: ' + oldWidth + ' and Old Height: ' + oldHeight);
-
-    var devicePixelRatio = window.devicePixelRatio || 1
-    var backingStoreRatio = context.webkitBackingStorePixelRatio ||
-                        context.mozBackingStorePixelRatio ||
-                        context.msBackingStorePixelRatio ||
-                        context.oBackingStorePixelRatio ||
-                        context.backingStorePixelRatio || 1;
-
-    var ratio = devicePixelRatio / backingStoreRatio;
-
-    console.log('Dev Pixel Ratio  : ' + devicePixelRatio);
-    console.log('Backing Store R  : ' + backingStoreRatio);
-    console.log('Ratio            : ' + ratio);
-
-    canvas.width = oldWidth * ratio;
-    canvas.height = oldHeight * ratio;
-
-    canvas.style.width = oldWidth + 'px';
-    canvas.style.height = oldHeight + 'px';
-
-    context.scale(ratio, ratio);
-
-
-
-
+	var _numberOfIterations = Math.floor(_transitionTime / 1000 * 40);
 
 
 	this.addStatic = function(aStatic) {
@@ -189,20 +131,28 @@ function CanvasDrawingManager() {
 		_newUnitDrawing = true;
 	}
 
-	this.draw = function() {
+	this.draw = function(clearFinal) {
 
 		// set the timeout for each drawing period
 		var timeoutLength = _transitionTime / _numberOfIterations;
 
 		// build the static drawable list for each draw call
 		var drawables = [];
+		var dynamicBuilder = [];
 		for(var iteration = 0; iteration < _numberOfIterations; iteration++) {
 			var draw = [];
 			_.each(_statics, function(staticDrawable) {
-				draw.push(staticDrawable);
+				// only push for first one
+				// if(iteration == 0) {
+					draw.push(staticDrawable);
+				// }
+				
 			});
 			drawables.push(draw);
+			dynamicBuilder.push([]);
 		}
+
+		
 
 		// build the dynamic draw for each draw call
 		_.each(_dynamics, function(dynPos) {
@@ -234,7 +184,7 @@ function CanvasDrawingManager() {
 
 				// add this version of the dynamic position to the list of items that will be drawn
 				drawables[j].push(pos);
-
+				dynamicBuilder[j].push(pos);
 			}
 
 		});
@@ -245,47 +195,151 @@ function CanvasDrawingManager() {
 		});
 		inventoryCanvasTimeouts.length = 0;
 
+		_.each(divTimeouts, function(timeout) {
+			clearTimeout(timeout);
+		});
+		divTimeouts.length = 0;
+
+		var children = $('#game-container-canvas-wrapper').children();
+
+		for(var i = 0; i < drawables[0].length; i++) {
+				// if($($(children[i]).find('.drawing-icon-image')).attr('src').indexOf(drawables[0][i].imageSrc) == -1) {
+					
+
+					var div = $(children[i]).css('background-color', ('#' + drawables[0][i].color));
+
+
+					var image = $($(children[i]).find('.drawing-icon-image'));
+					// $($(children[i]).find('.drawing-icon-image')).attr('src', ('img/' + drawables[0][i].imageSrc + '-small.png'));
+				
+					var imageSrc = $(image).attr('src', 'img/' + drawables[0][i].imageSrc + '-small.png');
+					var imageSrc = $(image).attr('src', $(image).attr('src').toLowerCase());
+
+				// }
+				// if($($(children[i]).find('.drawing-icon-count')).text() !== drawables[0][i].count) {
+					$($(children[i]).find('.drawing-icon-count')).text(drawables[0][i].count);
+				// }
+			}
+
+			// move the statics right away, clear the rest
+			for(var i = 0; i < _statics.length; i++) {
+				$(children[i]).offset({top: _statics[i].y - 132,left: _statics[i].x - 30});
+			}
+			for(var i = _statics.length; i < 9; i++) {
+				$(children[i]).offset({top: -1000, left: -1000});
+			}
+
+		var poisonPill = false;
+		var poisonPillAdded = false;
+
 		// set the timeout events for all of the drawables
-		for(var j = 0; j < drawables.length; j++ ) {
+		for(var k = 0; k < dynamicBuilder.length; k++) {
 
-			var drawFunction = this.drawInventoryMarker;
+			// get the distance traveled by this element
+			if(!poisonPill && !poisonPillAdded && clearFinal) {
+				var x0 = dynamicBuilder[0][0].x;
+				var y0 = dynamicBuilder[0][0].y;
+				var x1 = dynamicBuilder[k][0].x;
+				var y1 = dynamicBuilder[k][0].y;
+				
+				// console.log(dynamicBuilder[0]);
+				var traveled = Math.pow(Math.pow((x1 - x0), 2) + Math.pow((y1 - y0), 2), 0.5);
 
-			inventoryCanvasTimeouts.push(setTimeout(function(drawArray) {
-				// set the context and clear it entirely
-				var drawingContext = $('#attack-unit-canvas')[0].getContext("2d");
-				drawingContext.clearRect(0, 0, 320, 658);
+				// get the actual distance traveled
+				x0 = dynamicBuilder[0][0].x;
+				y0 = dynamicBuilder[0][0].y;
 
-				// set the drawable for each item
-				_.each(drawArray, function(coord) {
-					drawFunction(coord, drawingContext);
-				})}, 
+				x1 = dynamicBuilder[dynamicBuilder.length - 1][0].x;
+				y1 = dynamicBuilder[dynamicBuilder.length - 1][0].y;
 
-				// set the delay length and the draw object
-				timeoutLength*j, drawables[j]));
+				var scheduled = Math.pow(Math.pow((x1 - x0), 2) + Math.pow((y1 - y0), 2), 0.5);
+
+				// console.log(traveled + "," + scheduled);
+
+				if(traveled > scheduled) {
+					poisonPill = true;
+				}
+			}
+
+
+			var drawFunction = this.drawDiv;
+
+			var arg = {};
+			arg.drawables = dynamicBuilder[k];
+			arg.offset = _statics.length;
+			arg.poisonPill = poisonPill;
+
+			if(poisonPill) {
+				poisonPillAdded = true;
+				poisonPill = false;
+			}
+
+			divTimeouts.push(setTimeout(function(drawArray) {
+				var children = $('#game-container-canvas-wrapper').children();
+
+				if(drawArray.poisonPill) {
+					console.log("clearing poison pill at loc: " + drawArray.offset);
+					// clear the last element
+					$(children[drawArray.offset-1]).offset({top: -1000,left: -1000});
+				}
+
+				for(var i = 0; i < drawArray.drawables.length; i++) {
+					// console.log(drawArray.drawables[i]);
+					$(children[i + drawArray.offset]).offset({top: drawArray.drawables[i].y - 132,left: drawArray.drawables[i].x - 30});
+				}
+				// hide the unused elements
+				// for(var i = drawArray.drawables.length; i < 9; i++) {
+				// 	$(children[i]).offset({top: -1000, left: -1000});
+				// }
+
+			}, timeoutLength*k, arg));
 		}
+
+
+
+
+		// set the timeout events for all of the drawables
+		// for(var j = 0; j < drawables.length; j++ ) {
+
+		// 	var drawFunction = this.drawInventoryMarker;
+
+		// 	inventoryCanvasTimeouts.push(setTimeout(function(drawArray) {
+		// 		// set the context and clear it entirely
+		// 		var drawingContext = $('#attack-unit-canvas')[0].getContext("2d");
+		// 		drawingContext.clearRect(0, 0, 320, 658);
+
+		// 		// set the drawable for each item
+		// 		_.each(drawArray, function(coord) {
+		// 			drawFunction(coord, drawingContext);
+		// 		})}, 
+
+		// 		// set the delay length and the draw object
+		// 		timeoutLength*j, drawables[j]));
+		// };
+
 	}
 
 	/**
 	 * Draw an inventory marker
 	 */
-	this.drawInventoryMarker = function(coord, drawingContext) {
-		// draw the background circle
-		drawingContext.beginPath();
-	    drawingContext.fillStyle = '#' + coord.color;
-	    drawingContext.arc(coord.x, coord.y, 30, 0, 2 * Math.PI, false);
-	    drawingContext.fill();
+	// this.drawInventoryMarker = function(coord, drawingContext) {
+	// 	// draw the background circle
+	// 	drawingContext.beginPath();
+	//     drawingContext.fillStyle = '#' + coord.color;
+	//     drawingContext.arc(coord.x, coord.y, 30, 0, 2 * Math.PI, false);
+	//     drawingContext.fill();
 
-	    // draw the unit image, stored in a pre-loaded array
-	    _.each(smallImages, function(image) {
-	    	if((image.src).indexOf((coord.imageSrc).toLowerCase()) > -1) 
-	    		drawingContext.drawImage(image, coord.x - 18, coord.y - 22, 36, 36);
-	    });
+	//     // draw the unit image, stored in a pre-loaded array
+	//     _.each(smallImages, function(image) {
+	//     	if((image.src).indexOf((coord.imageSrc).toLowerCase()) > -1) 
+	//     		drawingContext.drawImage(image, coord.x - 18, coord.y - 22, 36, 36);
+	//     });
 	    
-	    // draw the count marker
-	    drawingContext.fillStyle = 'white';
-	    drawingContext.textAlign = 'center'
-	    drawingContext.font = "16px Lato";
-	    drawingContext.fillText(coord.count, coord.x, coord.y + 20);
-	}
+	//     // draw the count marker
+	//     drawingContext.fillStyle = 'white';
+	//     drawingContext.textAlign = 'center'
+	//     drawingContext.font = "16px Lato";
+	//     drawingContext.fillText(coord.count, coord.x, coord.y + 20);
+	// }
 }
 

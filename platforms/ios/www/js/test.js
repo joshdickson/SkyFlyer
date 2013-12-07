@@ -337,7 +337,7 @@ test('Player does not make an attack, loses game', function() {
 	equal(game.get('gameState').get('opponentStrength'), 43 + 14 + 18 + 22);
 	
 	// the opponent now wins the game
-	equal(game.endTurn(), 1);
+	equal(game.endTurn().winner, 'ai');
 
 });
 
@@ -371,7 +371,7 @@ test('Player purchases several items but never makes move, loses game', function
 	equal(game.get('gameState').get('opponentStrength'), 43 + 14 + 18 + 22);
 	
 	// the opponent now wins the game
-	equal(game.endTurn(), 1);
+	equal(game.endTurn().winner, 'ai');
 
 });
 
@@ -426,7 +426,7 @@ test('Player makes attack attempt with two units', function() {
 	game.endTurn();
 
 	// check the updated opponent score...
-	equal(game.get('gameState').get('opponentStrength'), 43 + 1.4);
+	equal(game.get('gameState').get('opponentStrength'), Math.floor(43 + 1.4));
 
 	// check the updated unit counts
 	equal(game.get('gameState').get('playerUnitInventory').at(1).get('unit').get('idNumber'), 3002);
@@ -455,7 +455,7 @@ test('Player makes large attack and wins', function() {
 	attackWave.add(new Inventory({'unit': gameUnits.getByID(3002), 'count': 3}));
 	game.get('gameState').set('attackForce', attackWave);
 
-	equal(game.endTurn(), 0);
+	equal(game.endTurn().winner, 'player');
 
 });
 
@@ -477,7 +477,7 @@ test('Cannot try to make moves once the game is over', function() {
 	attackWave.add(new Inventory({'unit': gameUnits.getByID(3002), 'count': 3}));
 	game.get('gameState').set('attackForce', attackWave);
 
-	equal(game.endTurn(), 0);
+	game.endTurn();
 
 	// throw error when trying to take a turn with the game already over
 	raises(function () {

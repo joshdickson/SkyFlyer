@@ -1,5 +1,5 @@
 /**
- * attackBuilderView.js
+ * attackbuilderview.js
  * Joshua Dickson
  */
 
@@ -14,13 +14,13 @@ var AttackBuilderView = Backbone.View.extend({
 	// Bind user interaction events, native mouse necessary because of the draggable
 	events: {
 		'touchend 		#end-turn-icon' 			: 'endTurn',
-		'touchstart 	#attack-inventory-icon'		: 'touchstart',
-		'touchmove 		#attack-inventory-icon'		: 'touchmove',
-		'touchend 		#attack-inventory-icon'		: 'touchend',
+		'touchstart 	#attack-inventory-icon'		: '_attacktouchstart',
+		'touchmove 		#attack-inventory-icon'		: '_attacktouchmove',
+		'touchend 		#attack-inventory-icon'		: '_attacktouchend',
 	},
 
 	// Set the mouse down flag
-	touchstart: function(event) {
+	_attacktouchstart: function(event) {
 		// respond to event
 		var touch = event.originalEvent.touches[0] || event.originalEvent.changedTouches[0];
 		this._mousedown = true;
@@ -30,7 +30,7 @@ var AttackBuilderView = Backbone.View.extend({
 	},
 	
 	// If the mouse is down and moving set the dragging flag
-	touchmove: function(event) {
+	_attacktouchmove: function(event) {
 		if(this._mousedown) this._isDragging = true;
 		var touch = event.originalEvent.touches[0] || event.originalEvent.changedTouches[0];
 		var deltaY = touch.pageY - this._attackInventoryTouchStart.startY;
@@ -44,7 +44,7 @@ var AttackBuilderView = Backbone.View.extend({
 	},
 
 	// Reset the mouse down and dragging flags if they are set, filter out drag event
-	touchend: function() {
+	_attacktouchend: function() {
 		this._mousedown = undefined;
         if(this._isDragging) {
         	this._isDragging = undefined;
@@ -98,6 +98,8 @@ var AttackBuilderView = Backbone.View.extend({
 
 	// Transition to the hole view via a callback request to the view manager
 	goToHomeView: function() {
+		
+
 		$('#attack-inventory-icon').attr('src', 'img/attack-build-icon.png');
 		easeToFinalLocation(this.$el, $('#home-page').offset().top, 0);
 		this._transition('gameHome', 900);
@@ -118,9 +120,16 @@ var AttackBuilderView = Backbone.View.extend({
 
 	// End the turn
 	endTurn: function() {
-		var canvas = $('#attack-unit-canvas');
-		var ctx = canvas[0].getContext("2d");
-		ctx.clearRect(0, 0, 320, 658);
+
+		// we may have to clear the drawing section
+		if(GameModel.get('gameState').get('attackForce')) {
+			var children = $('#game-container-canvas-wrapper').children();
+			_.each(children, function(child) {
+				$(child).offset({top: -1000,left: -1000});
+			});
+		}
+		
+
 		$('#attack-inventory-icon').attr('src', 'img/attack-build-icon.png');
 		easeToFinalLocation(this.$el, $('#home-page').offset().top, 0);
 
@@ -153,11 +162,6 @@ var AttackInventoryEffectsView = Backbone.View.extend({
 			counter++;
 			this.$('#available-attack-units').append(view.render().el);
 		});
-
-		// return this;
-
-
-
 
 		this.render();
 	},
@@ -201,14 +205,10 @@ var AttackInventoryEffectsView = Backbone.View.extend({
 		}
 	},
 
-
-
 	render: function() {
-
-		
-
 		return this;
 	},
+
 	callbackHandler: function(event, storageArray) {
 		// record whether or not a move will be made (there is avail unit)
 		var doMove = false;
@@ -288,6 +288,8 @@ var AttackInventoryEffectsView = Backbone.View.extend({
 				dynPos.count = _.last(canvasManager.getStatics()).count;
 
 				canvasManager.addDynamic(dynPos);
+
+				canvasManager.draw(true);
 				
 
 
@@ -320,9 +322,11 @@ var AttackInventoryEffectsView = Backbone.View.extend({
 
 				canvasManager.setNewUnit();
 				canvasManager.addDynamic(dynPos);
+
+				canvasManager.draw();
 			}
 			
-			canvasManager.draw();
+			
 
 		}
 	}

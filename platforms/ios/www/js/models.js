@@ -1,6 +1,5 @@
 /**
  * units.js
- * 
  * Joshua Dickson
  */
 
@@ -183,8 +182,6 @@ var SkyFlyerGameModel = Backbone.Model.extend({
 				attackingMatch = attackForceLast;
 			}
 
-			// console.log('Attack Wave Length: ' + this.get('gameState').get('attackForce').length);
-
 			if(attackingMatch === undefined) {
 				// can't make this move because max 8 units allowed, return false and end
 				if(this.get('gameState').get('attackForce').length > 7) {
@@ -298,7 +295,7 @@ var SkyFlyerGameModel = Backbone.Model.extend({
 					
 				});
 
-			} 
+			}
 
 			// update the player's score
 			var cashIncrease = Math.floor(attackForceTotal * 6);
@@ -316,6 +313,7 @@ var SkyFlyerGameModel = Backbone.Model.extend({
 
 			// check that there is no winner, if so, end the game, and declare that it's over
 			if(gameConfig.get('opponentStrength') > 100) {
+				response.winner = 'ai';
 				gameConfig.set('isGameOver', true);
 				var winMessage = {};
 				winMessage.header = 'L';
@@ -330,6 +328,7 @@ var SkyFlyerGameModel = Backbone.Model.extend({
 				// console.log(response);
 				return response; // opponent won
 			} else if(gameConfig.get('opponentStrength') < 0) {
+				response.winner = 'player';
 				gameConfig.set('isGameOver', true);
 				var winMessage = {};
 				winMessage.header = 'W';

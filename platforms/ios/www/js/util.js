@@ -8,7 +8,7 @@
  */
 function easeToFinalLocation(obj, currentPosition, finalPosition) {
 	var time = 1000;
-    var numberOfIter = 24;
+    var numberOfIter = 20;
     var timeoutLength = time / numberOfIter;
     var travelDistance = Math.abs(finalPosition - currentPosition);
 
