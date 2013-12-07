@@ -1,7 +1,53 @@
+/**
+ * skyflyer.css
+ *
+ * Style sheet for the SkyFlyer application
+ *
+ * Joshua Dickson
+ */
+
+
+/********** Fixes for iOS  **********/
+body {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+
+/********** General Styles **********/
+.fr { float: right }
+.fl { float: left }
 
 
 
-/********** Canvas Smoothing **********/
+.drawing-icon {
+	height: 60px;
+	width: 60px;
+	border-radius: 40px;
+	background-color: red;
+	position: absolute;
+	top: -1000px;
+	left: -1000px;
+	text-align: center;
+}
+
+.drawing-icon-image {
+	width: 36px;
+	height: 36px;
+	padding-top: 6px;
+	padding-left: 12px;
+	position: relative;
+}
+
+.cb {
+	clear: both;
+}
+
+.drawing-icon-count {
+	position: relative;
+	top: -7px;
+	text-align: center;
+}
 
 
 
@@ -35,8 +81,6 @@ div#opponent-score {
 
 #opponent-score-drawing-canvas {
 	float: left;
-	width: 40px;
-	height: 40px;
 }
 
 #opponent-score-text {
@@ -46,11 +90,7 @@ div#opponent-score {
 	margin-top: 1px;
 }
 
-body {
-    -webkit-touch-callout: none;
-    -webkit-user-select: none; /* Disable selection/copy in UIWebView */
-    -webkit-tap-highlight-color:rgba(0,0,0,0);
-}
+
 
 #background-image {
 	position: absolute;
@@ -162,12 +202,7 @@ div#opponent-score {
 
 
 /***************** General *******************/
-.fr {
-	float: right;
-}
-.fl {
-	float: left;
-}
+
 
 /******************** Attack Inventory Container **********************/
 div.attack-inventory-icon {
@@ -198,6 +233,8 @@ div.unit-count-wrapper {
 
 #game-container-canvas-wrapper {
 	position: absolute;
+	width: 320px;
+	height: 568px;
 }
 
 #game-wrapper {

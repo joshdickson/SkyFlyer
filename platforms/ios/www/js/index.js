@@ -19,6 +19,7 @@
 
 
 var inventoryCanvasTimeouts = [];
+var divTimeouts = [];
 var views;
 
 
