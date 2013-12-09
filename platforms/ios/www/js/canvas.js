@@ -8,7 +8,6 @@ for(var k = 0; k < 9; k++) {
 	$('#game-container-canvas-wrapper').append('<div class="drawing-icon"><img class="fl drawing-icon-image" src="img/mustang-small.png" /><p class="cb drawing-icon-count">5</p></div>');
 }
 
-
  /**
  * Utility for working with the opponent score canvas which has a moving gear
  */
@@ -18,9 +17,6 @@ function OpponentScoreDrawingManager() {
 	var that = this;
 	var _rotation = 0;
 	var _isDrawing = true;
-
-
-
 
 	var canvas = $('#opponent-score-drawing-canvas')[0];
 	var context2d = $('#opponent-score-drawing-canvas')[0].getContext("2d");
@@ -74,40 +70,25 @@ function OpponentScoreDrawingManager() {
 			context2d.rotate(_rotation * TO_RADIANS);
 			var oppStrength = GameModel.get('gameState').get('opponentStrength');
 
-			// console.log(oppStrength);
-			// console.log(gearImage);
-			// console.log($('#opponent-score-drawing-canvas').attr('height'));
-
 			_rotation += (.15 + (oppStrength / 62));
 			if(_rotation > 360) _rotation -= 360;
 		 
-			// draw it up and to the left by half the width
-			// and height of the image 
-			// console.log(image);
 			context2d.drawImage(image, -8, -8, 16, 16);
-
-			// context2d.drawImage(image, 0, 0, 36, 36);
-		 
-			// and restore the co-ords to how they were when we began
 			context2d.restore(); 
 
 			setTimeout(that.drawRotatedImage, 25);
 		}
-
-
-		
 	}
-
 	setTimeout(this.drawRotatedImage, 25);
-
-
 };
 
 
  /**
-  * Utilities for working with HTML5 canvas elements in the SkyFlyer game
+  * Utilities for working with the mock canvas element for drawing attack waves
   */
-function CanvasDrawingManager() {
+function AttackCanvasDrawingManager() {
+
+	// fields
 	var _statics = [];
 	var _dynamics = [];
 	var _newUnitDrawing = false;
@@ -115,23 +96,29 @@ function CanvasDrawingManager() {
 	var _transitionTime = 800;
 	var _numberOfIterations = Math.floor(_transitionTime / 1000 * 40);
 
-
+	// add a static drawable
 	this.addStatic = function(aStatic) {
 		_statics.push(aStatic);
 	}
 
+	// add a dynamic 
 	this.addDynamic = function(aDynamic) {
 		_dynamics.push(aDynamic);
 	}
+
+	// get the static elements
 	this.getStatics = function() {
 		return _statics;
 	}
 
+	// set that this drawing operation is for a new unit
 	this.setNewUnit = function() {
 		_newUnitDrawing = true;
+		_statics.pop();
 	}
 
-	this.draw = function(clearFinal) {
+	// do the drawing operation
+	this.draw = function() {
 
 		// set the timeout for each drawing period
 		var timeoutLength = _transitionTime / _numberOfIterations;
@@ -141,18 +128,10 @@ function CanvasDrawingManager() {
 		var dynamicBuilder = [];
 		for(var iteration = 0; iteration < _numberOfIterations; iteration++) {
 			var draw = [];
-			_.each(_statics, function(staticDrawable) {
-				// only push for first one
-				// if(iteration == 0) {
-					draw.push(staticDrawable);
-				// }
-				
-			});
+			_.each(_statics, function(staticDrawable) { draw.push(staticDrawable) });
 			drawables.push(draw);
 			dynamicBuilder.push([]);
 		}
-
-		
 
 		// build the dynamic draw for each draw call
 		_.each(_dynamics, function(dynPos) {
@@ -200,34 +179,23 @@ function CanvasDrawingManager() {
 		});
 		divTimeouts.length = 0;
 
+		// cache the children
 		var children = $('#game-container-canvas-wrapper').children();
-
 		for(var i = 0; i < drawables[0].length; i++) {
-				// if($($(children[i]).find('.drawing-icon-image')).attr('src').indexOf(drawables[0][i].imageSrc) == -1) {
-					
+			var div = $(children[i]).css('background-color', ('#' + drawables[0][i].color));
+			var image = $($(children[i]).find('.drawing-icon-image'));
+			var imageSrc = $(image).attr('src', 'img/' + drawables[0][i].imageSrc + '-small.png');
+			var imageSrc = $(image).attr('src', $(image).attr('src').toLowerCase());
+			$($(children[i]).find('.drawing-icon-count')).text(drawables[0][i].count);
+		}
 
-					var div = $(children[i]).css('background-color', ('#' + drawables[0][i].color));
-
-
-					var image = $($(children[i]).find('.drawing-icon-image'));
-					// $($(children[i]).find('.drawing-icon-image')).attr('src', ('img/' + drawables[0][i].imageSrc + '-small.png'));
-				
-					var imageSrc = $(image).attr('src', 'img/' + drawables[0][i].imageSrc + '-small.png');
-					var imageSrc = $(image).attr('src', $(image).attr('src').toLowerCase());
-
-				// }
-				// if($($(children[i]).find('.drawing-icon-count')).text() !== drawables[0][i].count) {
-					$($(children[i]).find('.drawing-icon-count')).text(drawables[0][i].count);
-				// }
-			}
-
-			// move the statics right away, clear the rest
-			for(var i = 0; i < _statics.length; i++) {
-				$(children[i]).offset({top: _statics[i].y - 132,left: _statics[i].x - 30});
-			}
-			for(var i = _statics.length; i < 9; i++) {
-				$(children[i]).offset({top: -1000, left: -1000});
-			}
+		// move the statics right away, clear the rest
+		for(var i = 0; i < _statics.length; i++) {
+			$(children[i]).offset({top: _statics[i].y - 132,left: _statics[i].x - 30});
+		}
+		for(var i = _statics.length; i < 9; i++) {
+			$(children[i]).offset({top: -1000, left: -1000});
+		}
 
 		var poisonPill = false;
 		var poisonPillAdded = false;
@@ -236,13 +204,12 @@ function CanvasDrawingManager() {
 		for(var k = 0; k < dynamicBuilder.length; k++) {
 
 			// get the distance traveled by this element
-			if(!poisonPill && !poisonPillAdded && clearFinal) {
+			if(!poisonPill && !poisonPillAdded && !_newUnitDrawing) {
 				var x0 = dynamicBuilder[0][0].x;
 				var y0 = dynamicBuilder[0][0].y;
 				var x1 = dynamicBuilder[k][0].x;
 				var y1 = dynamicBuilder[k][0].y;
 				
-				// console.log(dynamicBuilder[0]);
 				var traveled = Math.pow(Math.pow((x1 - x0), 2) + Math.pow((y1 - y0), 2), 0.5);
 
 				// get the actual distance traveled
@@ -254,13 +221,10 @@ function CanvasDrawingManager() {
 
 				var scheduled = Math.pow(Math.pow((x1 - x0), 2) + Math.pow((y1 - y0), 2), 0.5);
 
-				// console.log(traveled + "," + scheduled);
-
 				if(traveled > scheduled) {
 					poisonPill = true;
 				}
 			}
-
 
 			var drawFunction = this.drawDiv;
 
@@ -278,68 +242,19 @@ function CanvasDrawingManager() {
 				var children = $('#game-container-canvas-wrapper').children();
 
 				if(drawArray.poisonPill) {
-					console.log("clearing poison pill at loc: " + drawArray.offset);
-					// clear the last element
 					$(children[drawArray.offset-1]).offset({top: -1000,left: -1000});
 				}
 
 				for(var i = 0; i < drawArray.drawables.length; i++) {
-					// console.log(drawArray.drawables[i]);
 					$(children[i + drawArray.offset]).offset({top: drawArray.drawables[i].y - 132,left: drawArray.drawables[i].x - 30});
 				}
-				// hide the unused elements
-				// for(var i = drawArray.drawables.length; i < 9; i++) {
-				// 	$(children[i]).offset({top: -1000, left: -1000});
-				// }
 
 			}, timeoutLength*k, arg));
 		}
 
 
-
-
-		// set the timeout events for all of the drawables
-		// for(var j = 0; j < drawables.length; j++ ) {
-
-		// 	var drawFunction = this.drawInventoryMarker;
-
-		// 	inventoryCanvasTimeouts.push(setTimeout(function(drawArray) {
-		// 		// set the context and clear it entirely
-		// 		var drawingContext = $('#attack-unit-canvas')[0].getContext("2d");
-		// 		drawingContext.clearRect(0, 0, 320, 658);
-
-		// 		// set the drawable for each item
-		// 		_.each(drawArray, function(coord) {
-		// 			drawFunction(coord, drawingContext);
-		// 		})}, 
-
-		// 		// set the delay length and the draw object
-		// 		timeoutLength*j, drawables[j]));
-		// };
-
 	}
 
-	/**
-	 * Draw an inventory marker
-	 */
-	// this.drawInventoryMarker = function(coord, drawingContext) {
-	// 	// draw the background circle
-	// 	drawingContext.beginPath();
-	//     drawingContext.fillStyle = '#' + coord.color;
-	//     drawingContext.arc(coord.x, coord.y, 30, 0, 2 * Math.PI, false);
-	//     drawingContext.fill();
 
-	//     // draw the unit image, stored in a pre-loaded array
-	//     _.each(smallImages, function(image) {
-	//     	if((image.src).indexOf((coord.imageSrc).toLowerCase()) > -1) 
-	//     		drawingContext.drawImage(image, coord.x - 18, coord.y - 22, 36, 36);
-	//     });
-	    
-	//     // draw the count marker
-	//     drawingContext.fillStyle = 'white';
-	//     drawingContext.textAlign = 'center'
-	//     drawingContext.font = "16px Lato";
-	//     drawingContext.fillText(coord.count, coord.x, coord.y + 20);
-	// }
 }
 

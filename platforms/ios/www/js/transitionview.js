@@ -94,9 +94,9 @@ var TransitionView = Backbone.View.extend({
 		// if there are prompts to show...
 		if(response && response.messageQueue && response.messageQueue.length > 0) {
 			// fade the background
-			$('#background-image').fadeTo(640, 0.7);
-			$('#game-container').fadeTo(640, 0.06);
-			$('#opponent-score').fadeTo(640, 0.06);
+			$('#background-image').fadeTo(900, 0.7);
+			$('#game-container').fadeTo(900, 0.06);
+			$('#opponent-score').fadeTo(900, 0.06);
 
 			// iterate through the messages, display them, and take the appropriate action
 			for(var msgID = 0; msgID < response.messageQueue.length; msgID++) {

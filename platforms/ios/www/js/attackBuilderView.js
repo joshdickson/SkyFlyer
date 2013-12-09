@@ -99,7 +99,6 @@ var AttackBuilderView = Backbone.View.extend({
 	// Transition to the hole view via a callback request to the view manager
 	goToHomeView: function() {
 		
-
 		$('#attack-inventory-icon').attr('src', 'img/attack-build-icon.png');
 		easeToFinalLocation(this.$el, $('#home-page').offset().top, 0);
 		this._transition('gameHome', 900);
@@ -205,134 +204,106 @@ var AttackInventoryEffectsView = Backbone.View.extend({
 		}
 	},
 
-	render: function() {
-		return this;
-	},
+	callbackHandler: function(event) {
 
-	callbackHandler: function(event, storageArray) {
-		// record whether or not a move will be made (there is avail unit)
-		var doMove = false;
-		var preWaveLength;
-		if(this.model.get('count') > 0) {
-			doMove = true;
-			preWaveLength = GameModel.get('gameState').get('attackForce').length;
-		}
+		// get the number of units in the attack force
+		preWaveLength = GameModel.get('gameState').get('attackForce').length;
 
-		// do the change on the model
-		var moveSuccess = GameModel.addToAttack(this.model);
-
-		if(doMove && moveSuccess) {
-
+		// if there is a unit to add to the attack and the move succeeds
+		if(this.model.get('count') > 0 && GameModel.addToAttack(this.model)) {
+			
+			// get the touch event
+			var touch = event.originalEvent.touches[0];
+		
+			// load the list of colors to color tiles with
 			var colors = ['AD3939', '39AD8E', '6A39AD', '3962AD', 'ad399b', '39a1ad', 'ad6239', 'ad3962'].reverse();
 
-			var yPos = 265;
-			var yPosExpanded = [231, 299];
+			// load the offsets
+			var yOffset = 265;
 			var xOffset = 68;
 
-			// get the post wave
+			// get the attack size
 			var postWave = GameModel.get('gameState').get('attackForce');
-			var horSize = (postWave.length - 1) * xOffset;
 
-			var finalPositions = [];
+			// load final position information into an array
+			var endMoveInformation = [];
 
+			// build the move information positions for all of the units
 			for(var i = 0; i < postWave.length; i++) {
 
-				var fianlPosition = {};
-				fianlPosition.imageSrc = GameModel.get('gameState').get('attackForce').models[i].get('unit').get('pieceName');
-				fianlPosition.count = GameModel.get('gameState').get('attackForce').models[i].get('count');
+				var move = {};
+
+				// load the image partial source and the counter
+				move.imageSrc = GameModel.get('gameState').get('attackForce').models[i].get('unit').get('pieceName');
+				move.count = GameModel.get('gameState').get('attackForce').models[i].get('count');
+
+				// one row of icons
 				if(postWave.length < 5) {
-					fianlPosition.y = yPos;
-					fianlPosition.x = ((320-horSize)/2) + (i * xOffset);
-				} else {
+					move.y = yOffset;
+					move.x = ((320-((postWave.length - 1) * xOffset))/2) + (i * xOffset);
+				} 
+
+				// two rows of icons
+				else {
 					if(i < 4) {
-						fianlPosition.y = yPosExpanded[0];
-						fianlPosition.x = ((320-(3*68))/2) + (i * xOffset);
+						move.y = yOffset - 34;
+						move.x = ((320-(3*68))/2) + (i * xOffset);
 					} else  {
-						fianlPosition.y = yPosExpanded[1];
-						fianlPosition.x = ((320-((postWave.length - 5) * xOffset))/2) + ((i-4) * xOffset);
+						move.y = yOffset + 34;
+						move.x = ((320-((postWave.length - 5) * xOffset))/2) + ((i-4) * xOffset);
 					}
 				}
-				finalPositions.push(fianlPosition);
+
+				// push the move into the list
+				endMoveInformation.push(move);
 			}
+			
+			// start a new drawing manager for the tiles
+			var canvasManager = new AttackCanvasDrawingManager();
 
-			var touch = event.originalEvent.touches[0] || event.originalEvent.changedTouches[0];
+			// map the static drawables
+			_.each(endMoveInformation, function(move) {
+				move.color = colors.pop();
+				canvasManager.addStatic(move);
+			});
 
-			var canvasManager = new CanvasDrawingManager();
+			// load attributes for the dynamic position drawable
+			var finalPosition = _.last(endMoveInformation);
+			var dynPos = {};
+			dynPos.x0 = touch.pageX;
+			dynPos.y0 = touch.pageY + 90;
+			dynPos.x1 = finalPosition.x;
+			dynPos.y1 = finalPosition.y;
 
+			// cache the last static object
+			var last = _.last(canvasManager.getStatics());
+
+			// the unit added is the same type as the previous tile
 			if(postWave.length == preWaveLength) {
+				dynPos.color = last.color;
+				dynPos.imageSrc = last.imageSrc;
+				dynPos.count = last.count;
+			} 
 
-				
-
-				// first, we assume that below has been triggered already for one unit. in this case,
-				// we simply leave and do not move any of the elements directly
-
-				for(var i = 0; i < finalPositions.length; i++) {
-					var statPos = {};
-					statPos.x = finalPositions[i].x;
-					statPos.y = finalPositions[i].y;
-					statPos.color = colors.pop();
-					statPos.imageSrc = finalPositions[i].imageSrc;
-					statPos.count = finalPositions[i].count;
-					canvasManager.addStatic(statPos);
-				}
-
-				var finalPosition = _.last(finalPositions);
-
-				var dynPos = {};
-				dynPos.x0 = touch.pageX;
-				dynPos.y0 = touch.pageY + 90;
-				dynPos.x1 = finalPosition.x;
-				dynPos.y1 = finalPosition.y;
-				dynPos.color = _.last(canvasManager.getStatics()).color;
-				dynPos.imageSrc = _.last(canvasManager.getStatics()).imageSrc;
-				dynPos.count = _.last(canvasManager.getStatics()).count;
-
-				canvasManager.addDynamic(dynPos);
-
-				canvasManager.draw(true);
-				
-
-
-			} else {
-
-				// var canvasManager = new CanvasDrawingManager();
-
-				for(var i = 0; i < finalPositions.length - 1; i++) {
-					var statPos = {};
-					statPos.x = finalPositions[i].x;
-					statPos.y = finalPositions[i].y;
-					statPos.color = colors.pop();
-					statPos.imageSrc = finalPositions[i].imageSrc;
-					statPos.count = finalPositions[i].count;
-					canvasManager.addStatic(statPos);
-				}
-
-				// now build the transition that will be from the click point...
-				var finalPosition = _.last(finalPositions);
-				
-				var dynPos = {};
-				dynPos.x0 = touch.pageX;
-				dynPos.y0 = touch.pageY + 90;
-				dynPos.x1 = finalPosition.x;
-				dynPos.y1 = finalPosition.y;
-				dynPos.color = colors.pop();
-
-				dynPos.imageSrc = _.last(finalPositions).imageSrc;
-				dynPos.count = 1;
-
+			// new unit and a new tile
+			else {
 				canvasManager.setNewUnit();
-				canvasManager.addDynamic(dynPos);
-
-				canvasManager.draw();
+				dynPos.imageSrc = last.imageSrc;
+				dynPos.color = last.color;
+				dynPos.count = 1;
 			}
-			
-			
 
+			// add the dynamic drawing object
+			canvasManager.addDynamic(dynPos);
+
+			// perform the draw animation
+			canvasManager.draw();
+			
 		}
 	}
 });
 
-
+// View for an individual inventory unit attack selection tile
 var InventoryUnitView = Backbone.View.extend({
 
 	// set the div for this element
@@ -357,21 +328,18 @@ var InventoryUnitView = Backbone.View.extend({
 
 	render: function() {
 
+		// copy the model content to the template
 		this.$el.html(this.template(this.model.toJSON()));
 
-		// console.log(this.model.get('unit').get('pieceName').toLowerCase());
-		var pieceName = this.model.get('unit').get('pieceName').toLowerCase();
-		// set the alternating color for the backgrounds...
-		if(!(this._index % 2)) {
-			$(this.$el.children()[0]).css('background-color', '#494d57');
-		} else {
-			$(this.$el.children()[0]).css('background-color', '#41444f');
-		}
+		// set the background color
+		var bgColor = '41444f';
+		if(!(this._index % 2)) bgColor = '494d57';
+		$(this.$el.children()[0]).css('background-color', '#' + bgColor);
 
-		// print out the image sizes, because we are going to adjust them
+		// correct the image and resize it if necessary
 		var image = this.$el.find('.inventory-icon');
-		// switch the src
-		var imageSrc = $(image).attr('src', 'img/' + pieceName + '.png');
+		var pieceName = this.model.get('unit').get('pieceName').toLowerCase();
+		$(image).attr('src', 'img/' + pieceName + '.png');
 		var imageSrc = $(image).attr('src').toLowerCase();
 
 		var jsImageCopy;
@@ -385,17 +353,19 @@ var InventoryUnitView = Backbone.View.extend({
 		var height = 52;
 		var width = 62;
 
+		// fix the height and width using the original aspect ration of the image
 		if(jsImageCopy.width > 70) {
 			image.width(width + 'px');
 			image.height((width / originalAspectRatio) + 'px');
-			image.css('padding-left', ((80 - image.width()) * 1/2) + 'px');
-			image.css('padding-top', ((70 - image.height()) * 1/2) + 'px');
+			
 		} else if (jsImageCopy.height > 65) {
 			image.height(height + 'px');
-			image.width((originalAspectRatio * height) + 'px');
-			image.css('padding-left', ((80 - image.width()) * 1/2) + 'px');
-			image.css('padding-top', ((60 - image.height()) * 1/2) + 'px');
+			image.width((originalAspectRatio * height) + 'px');			
 		}
+
+		// adjust the image padding
+		image.css('padding-left', ((80 - image.width()) * 1/2) + 'px');
+		image.css('padding-top', ((64 - image.height()) * 1/2) + 'px');
 
 		return this;
 	}

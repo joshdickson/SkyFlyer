@@ -6,10 +6,10 @@
 /**
  * Ease an object from one location to another using a basic transient
  */
-function easeToFinalLocation(obj, currentPosition, finalPosition) {
-	var time = 1000;
-    var numberOfIter = 20;
-    var timeoutLength = time / numberOfIter;
+function easeToFinalLocation(obj, currentPosition, finalPosition, t) {
+	var time = t || 1000;
+    var timeoutLength = 50;
+    var numberOfIter = Math.floor(time/timeoutLength) + 1;
     var travelDistance = Math.abs(finalPosition - currentPosition);
 
     for(var i = 0, j = 0; i < travelDistance; i += travelDistance/numberOfIter, j++ ) {
