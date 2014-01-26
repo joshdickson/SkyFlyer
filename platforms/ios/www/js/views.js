@@ -37,12 +37,11 @@ var AttackUnitView = Backbone.View.extend({
 
 	template: _.template($('#attack-unit-template').html()),
 
-	events: {
+	events: { 
 		'click'		: 'removeFromAttack'
 	},
 
 	removeFromAttack: function() {
-		// console.log('remove from attack called for unit: ' + this.model.get('unit').get('pieceName'));
 		GameModel.removeFromAttack(this.model);
 	},
 
@@ -56,27 +55,6 @@ var AttackUnitView = Backbone.View.extend({
 	}
 });
 
-
-
-
-// the view for the game
-var AttackView = Backbone.View.extend({
-  				
-	initialize: function() {
-		this.listenTo(GameModel.get('gameState').get('attackForce'), 'change reset add remove', this.render);
-		this.render();
-	},
-
-	render: function() {
-		$('#attack-units').empty();
-		GameModel.get('gameState').get('attackForce').each(function(inventoryItem) {
-			// console.log('rendering attack unit');
-			var view = new AttackUnitView({ model: inventoryItem });
-			this.$('#attack-units').append(view.render().el);
-		});
-		return this;
-	}
-});
 
 // the view for the game
 var OpponentView = Backbone.View.extend({

@@ -46,6 +46,10 @@
 	// set the static views
 	staticViews.push(new OpponentView);
 	staticViews.push(new GameStatsView);
+	staticViews.push(new AttackView({ collection: GameModel.get('gameState').get('attackForce') }));
+
+	// var a = new AttackView;
+	// console.log(new AttackView);
 
 	// configure dynamic views...
 	views['gameHome'] = new GameHomeView({ transition: this.transitionCallback });
@@ -58,12 +62,3 @@
 
 }
 
-
-/**
- * A view that organizes the attack builder 'canvas'
- */
-var AttackBuilderDrawingAreaView = Backbone.View.extend({
-
-
-
-});

@@ -101,7 +101,7 @@ function AttackCanvasDrawingManager() {
 		_statics.push(aStatic);
 	}
 
-	// add a dynamic 
+	// add a dynamic
 	this.addDynamic = function(aDynamic) {
 		_dynamics.push(aDynamic);
 	}
@@ -193,6 +193,7 @@ function AttackCanvasDrawingManager() {
 		for(var i = 0; i < _statics.length; i++) {
 			$(children[i]).offset({top: _statics[i].y - 132,left: _statics[i].x - 30});
 		}
+
 		for(var i = _statics.length; i < 9; i++) {
 			$(children[i]).offset({top: -1000, left: -1000});
 		}

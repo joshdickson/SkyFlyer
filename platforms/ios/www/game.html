@@ -29,7 +29,9 @@
 
 			<div id='home-page' class='draggable'>
 
+
 				<div id='game-container-canvas-wrapper'></div>
+				
 
 				<div id='game-wrapper'>
 			
@@ -54,6 +56,10 @@
 					</div>
 
 				</div> <!-- end game-wrapper -->
+
+
+				<div id='game-container-canvas-wrapper-2'></div>
+
 
 			</div> <!-- end home-page -->
 
@@ -110,7 +116,12 @@
 		</li>
 	</script>
 
-
+	<script type='text/template' id='drawing-icon-template'>
+		<div class="drawing-icon">
+			<img class="fl drawing-icon-image" src="img/mustang-small.png" />
+			<p class="cb drawing-icon-count">5</p>
+		</div>
+	</script>
 
 	<script type='text/template' id='attack-unit-template'>
 		<div class='attack-inventory-icon'>
@@ -122,6 +133,12 @@
 			</div>
 		</div>
 	</script>
+
+	<script type='text/template' id='attack-unit-template2'>
+		<img class='tile-image' src='img/mustang-small.png' />
+		<p class='unitCount'><%= count %></p>
+	</script>
+
     <script type="text/javascript">
         document.addEventListener('touchmove', function(e) { e.preventDefault(); }, false);
     </script>
@@ -142,11 +159,14 @@
 	<script src="js/functions.js"></script>
 	<script src="js/transient.js"></script>
 	<script src="js/util.js"></script>
+	
 	<script src="js/canvas.js"></script>
 	<script src="js/testfixtures.js"></script>
 	<script src="js/models.js"></script>
 	<script src='js/game.js'></script>
 	<script src="js/homeView.js"></script>
+	<script src="js/attacktiles.js"></script>
+	
 	<script src='js/views.js'></script>
 	<script src='js/attackBuilderView.js'></script>
 	<script src='js/transitionview.js'></script>

@@ -117,7 +117,7 @@ div#home-page {
 
 div#game-controls {
 	position: absolute;
-	padding-top: 484px;
+	margin-top: 484px;
 	padding-left: 5px;
 }
 
@@ -235,7 +235,10 @@ div.unit-count-wrapper {
 	position: absolute;
 	width: 320px;
 	height: 568px;
+	opacity: 0.2;
 }
+
+
 
 #game-wrapper {
 	position: absolute;
@@ -288,6 +291,29 @@ div.message-display-option-choice h5 {
 	font-family: 'Noticia Text';
 	color: #2f3035;
 	padding-top: 4px;
+}
+
+/********* Hardware Accelerated Testing *********/
+
+.attack-inventory-icon-2 {
+	height: 60px;
+	width: 60px;
+	position: absolute;
+	text-align: center;
+	border-radius: 30px;
+}
+
+/*div#game-container-canvas-wrapper-2 {
+	position: absolute;
+}*/
+
+img.tile-image {
+	padding-top: 6px;
+	height: 35px;
+}
+
+p.unitCount {
+	margin-top: -6px;
 }
 
 

@@ -201,7 +201,10 @@ var SkyFlyerGameModel = Backbone.Model.extend({
 	},
 	removeFromAttack: function(attackUnitInventoryItem) {
 
-		if(attackUnitInventoryItem.get('count') == 1) this.get('gameState').get('attackForce').remove(attackUnitInventoryItem);
+		if(attackUnitInventoryItem.get('count') == 1) {
+			attackUnitInventoryItem.trigger('remove');
+			this.get('gameState').get('attackForce').remove(attackUnitInventoryItem);
+		} 
 		else attackUnitInventoryItem.set('count', attackUnitInventoryItem.get('count') - 1);
 
 		// finally, put it back into the user's inventory...
@@ -253,6 +256,7 @@ var SkyFlyerGameModel = Backbone.Model.extend({
 
 				// iterate over attack pieces
 				attackForce.each(function(attackInventoryItem) {
+
 					// var unitMultiplier = attackInventoryItem.get('count');
 
 					// get the attacking unit to easily pull attack values from...
@@ -292,6 +296,8 @@ var SkyFlyerGameModel = Backbone.Model.extend({
 						}
 
 					}
+
+					attackInventoryItem.trigger('remove');
 					
 				});
 

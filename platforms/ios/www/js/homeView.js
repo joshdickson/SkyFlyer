@@ -89,14 +89,14 @@ var GameHomeView = Backbone.View.extend({
 
 		// the draggable moved beyond the threshold, so transition to the next state
 		if(topOffset < -20) {
-			easeToFinalLocation($(this.$el), topOffset, -90);
+			easeToFinalLocation($(this.$el), 'top', topOffset, -90);
 			this._transition('attackBuilder', 400);
 		} 
 
 		// the draggable did not move beyond the threshold, so ease back to the starting location
 		else {
 			$('#attack-inventory-icon').attr('src', 'img/attack-build-icon.png');
-			easeToFinalLocation($(this.$el), topOffset, 0);
+			easeToFinalLocation($(this.$el), 'top', topOffset, 0);
 		}
 	},
 
@@ -124,11 +124,18 @@ var GameHomeView = Backbone.View.extend({
 	// Transition to the attack builder view via a callback request to the view manager
 	goToAttackBuilder: function() {
 		$('#attack-inventory-icon').attr('src', 'img/attack-build-icon-active.png');
-		easeToFinalLocation(this.$el, $('#home-page').offset().top, -90);
+		
+
+		easeToFinalLocation(this.$el, 'top', $('#home-page').offset().top, -90);
+
 		this._transition('attackBuilder', 400);
 	}
 
 });
+
+function getExpMult(mult, val) {
+	return 1 / Math.exp(mult * val);
+}
 
 
 
